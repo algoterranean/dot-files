@@ -237,73 +237,88 @@
 ;; KEYBINDINGS
 ;;======================
 (defvar my-global-keybindings '()) ;; TODO: write a function to define keybindings based on this list and then another function to test the user to see if they remember the keybindings.
-      
-;; useful buffer commands
-(global-set-key "\C-xB" 'bury-buffer)
-(global-set-key "\C-xE" 'apply-macro-to-region-lines)
-(global-set-key "\C-xI" 'insert-buffer)
-(global-set-key (kbd "C-,") 'previous-buffer)
-(global-set-key (kbd "C-.") 'next-buffer)
 
-(global-set-key "\C-cg" 'goto-line)
-(global-set-key "\C-cG" 'goto-char)
-(global-set-key "\C-cw" 'delete-region) ; ala C-w and M-C-w
+(defun global-set-keys (key-list)
+  (interactive)
+  (mapcar 'key-helper key-list))
 
-;; window and frame navigation
-(global-set-key [C-return] 'other-window)
-(global-set-key [C-M-return] 'other-frame)
-;; comment/uncomment
-(global-set-key (kbd "C-c c") 'comment-region)
-(global-set-key (kbd "C-c u") 'uncomment-region)
-;; shortcuts to mainipulate window sizes
-(global-set-key (kbd "C-c C--") 'shrink-window)
-(global-set-key (kbd "C-c C-=") 'enlarge-window)
-(global-set-key (kbd "C-c M--") 'shrink-window-horizontally)
-(global-set-key (kbd "C-c M-=") 'enlarge-window-horizontally)
-;; global recursive grep from a directory
-(global-set-key [C-f10] 'search-proj-recursively)
-;; grep the current working directory
-(global-set-key [f10] 'search-proj-directory)
-;; navigate to the matching paren/brace
-(global-set-key (kbd "%") 'goto-match-paren)
-;; join line shortcut
-(global-set-key (kbd "C-j") 'join-line)
-;; google-code nav mode (like "directory" view in IDEs)
-(global-set-key [f8] 'nav-toggle)
+(defun key-helper (key-list)
+  (global-set-key (car key-list) (car (cdr key-list))))
 
-;; expand/contract region
-(global-set-key (kbd "C-=") 'er/expand-region)
-(global-set-key (kbd "C-+") 'er/contract-region)
-;; magit toggle
-(global-set-key [f9] 'magit-status)
-;; alternative way to use Meta-X (with C thrown for fat-fingering)
-(global-set-key "\C-x\C-m" 'execute-extended-command)
-(global-set-key "\C-c\C-m" 'execute-extended-command)
-;; recenter text on screen (vertically)
-(global-set-key '[C-l] '(recenter 1))
-;; insert today's date in MM.DD.YYYY format
-(global-set-key (kbd "C-c d") 'insert-date)
-;; 
-(define-key global-map "\C-cl" 'org-store-link)
-(define-key global-map "\C-ca" 'org-agenda)
-;; cycle through kill ring in reverse
-(global-set-key "\M-Y" 'yank-pop-forwards) ; M-Y (Meta-Shift-Y)
-;; select all
-(global-set-key "\C-c\C-a" 'mark-whole-buffer)
-;; rotate through my color theme list
-(global-set-key "\C-ct" 'rotate-through-themes)
- ;; disable help/manuals as F1
-(global-unset-key [f1])
-;; unity logs
-(global-set-key [f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Editor.log")))
-(global-set-key [C-f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Player.log")))
-;; weblogger
-(global-set-key [C-f12] 'htmlize-for-blog)
-(global-set-key [f12] 'weblogger-start-entry)
+(global-set-keys 
+ '(
+   ;; useful buffer commands
+   ("\C-xB" bury-buffer)
+   ("\C-xE" apply-macro-to-region-lines)
+   ("\C-xI" insert-buffer)
+   ("\C-cg" goto-line)
+   ("\C-cG" goto-char)
+   ("\C-cw" delete-region) ; ala C-w and M-C-w
+   ([?\C-,] previous-buffer)
+   ([?\C-.] next-buffer)
+   ;; window and frame navigation
+   ([C-return] other-window)
+   ([C-M-return] other-frame)
+   ;; comment/uncomment
+   ("\C-cc" comment-region)
+   ("\C-cu" uncomment-region)
+   ;; grep
+   ([C-f10] search-proj-recursively)
+   ([f10] search-proj-directory)
+   ;; navigate to the matching paren/brace
+   ("%" goto-match-paren)
+   ;; join line shortcut
+   ("\C-j" join-line)
+   ;; google-code nav mode (like "directory" view in IDEs)
+   ([f8] nav-toggle)
+   ;; magit toggle
+   ([f9] magit-status)
+   ;; alternative way to use Meta-X (with C thrown for fat-fingering)
+   ("\C-x\C-m" execute-extended-command)
+   ("\C-c\C-m" execute-extended-command)
+   ;; recenter text on screen (vertically)
+   ([C-l] '(recenter 1))
+   ;; insert today's date in MM.DD.YYYY format
+   ("\C-cd" insert-date)
+   ;; org stuff
+   ("\C-cl" org-store-link)
+   ("\C-ca" org-agenda)
+   ;; cycle through kill ring in reverse
+   ("\M-Y" yank-pop-forwards) ; M-Y (Meta-Shift-Y)
+   ;; select all
+   ("\C-c\C-a" mark-whole-buffer)
+   ;; rotate through my color theme list   
+   ("\C-ct" rotate-through-themes)
+   ;; unity logs
+   ([f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Editor.log")))
+   ([C-f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Player.log")))
+   ;; weblogger
+   ([C-f12] htmlize-for-blog)
+   ([f12] weblogger-start-entry)
+   ;; shortcuts to mainipulate window sizes
+   ([?\C-c ?\C--] shrink-window)
+   ([?\C-c ?\C-=] enlarge-window)
+   ([?\C-c ?\M--] shrink-window-horizontally)
+   ([?\C-c ?\M-+] enlarge-window-horizontally)
+   ;; expand/contract region
+   ([?\C-=] er/expand-region)
+   ([?\C-+] er/contract-region)
+   ))
+
+;; disable help/manuals as F1
+(global-unset-key [f1])   
+
+
 
 ;;======================
 ;; CUSTOM FUNCTIONS
 ;;======================
+
+(defun setup-unity-windows (fn)
+  (interactive)
+  ;;(split-window-horizontally 50)
+  (find-file fn)
+  (auto-revert-mode t))
 
 (defun htmlize-for-blog  ()
   (interactive)
