@@ -236,13 +236,6 @@
 ;;======================
 ;; KEYBINDINGS
 ;;======================
-(defun global-set-keys (key-list)
-  (interactive)
-  (mapcar 'key-helper key-list))
-
-(defun key-helper (key-list)
-  (global-set-key (car key-list) (car (cdr key-list))))
-
 
 ;; TODO: create function to pick one of these keybindings at random and quiz
 ;; user about what it does or what the keybinding is for that functions
@@ -306,7 +299,16 @@
     ([?\C-+] er/contract-region)
     ))
 
+
+(defun global-set-keys (key-list)
+  (interactive)
+  (mapcar 'key-helper key-list))
+
+(defun key-helper (key-list)
+  (global-set-key (car key-list) (car (cdr key-list))))
+
 (global-set-keys my-global-keybindings)
+
 
 ;; disable help/manuals as F1
 (global-unset-key [f1])   
