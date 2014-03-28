@@ -31,6 +31,9 @@
 (defvar my-package-list '(anzu
 			  adaptive-wrap
 			  crosshairs
+			  ;;boo-mode
+			  ;;cg-mode (not in package archives :( )
+			  ;;nxhtml-mumamo-mode
 			  csharp-mode 
 			  django-mode
 			  display-theme
@@ -39,11 +42,13 @@
 			  htmlize 
 			  fringe-current-line
 			  itail 
+			  js2-mode
 			  magit 
 			  markdown-mode
 			  powerline
 			  python-mode
-			  rainbow-mode))
+			  rainbow-mode
+			  weblogger))
 
 (defvar my-require-list '(adaptive-wrap
 			  edmacro
@@ -147,6 +152,7 @@
 ;; PREFERENCES
 ;;======================
 
+
 ;; display and visuals
 (setq theme-load-from-file nil)
 (load-theme 'zenburn t)
@@ -156,12 +162,15 @@
 (tool-bar-mode -1)
 (global-font-lock-mode t)
 (show-paren-mode t)
-(setq tab-width 4)
 (setq transient-mark-mode t) ;; enable visual feedback on selections
 (column-number-mode t)
 (linum-mode t)
 (setq frame-title-format "%b - emacs")
 
+;; indentation
+(setq tab-width 4)
+(setq python-indent 4)
+(setq c-default-style "linux" c-basic-offset 4) ;; set the default indentation style for c-mode
 
 ;; powerline
 (set-face-attribute 
@@ -212,6 +221,13 @@
 (set-keyboard-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
+(setq magic-mode-alist nil) ;; auto-mode-alist is the only list used for file associations
+(cua-mode 0) ;; disable cua mode
+(setq confirm-nonexistent-file-or-buffer nil) ;; do not confirm a new file or buffer
+(setq blink-cursor t) ;; blink the cursor when stationary
+(display-time-mode t)
+
+;; (nav-disable-overeager-window-splitting) ;; nav
 
 
 ;;======================
@@ -223,6 +239,8 @@
 (global-set-key "\C-xB" 'bury-buffer)
 (global-set-key "\C-xE" 'apply-macro-to-region-lines)
 (global-set-key "\C-xI" 'insert-buffer)
+(global-set-key (kbd "C-,") 'previous-buffer)
+(global-set-key (kbd "C-.") 'next-buffer)
 
 (global-set-key "\C-cg" 'goto-line)
 (global-set-key "\C-cG" 'goto-char)
@@ -249,7 +267,8 @@
 (global-set-key (kbd "C-j") 'join-line)
 ;; google-code nav mode (like "directory" view in IDEs)
 (global-set-key [f8] 'nav-toggle)
-;; 
+
+;; expand/contract region
 (global-set-key (kbd "C-=") 'er/expand-region)
 (global-set-key (kbd "C-+") 'er/contract-region)
 ;; magit toggle
@@ -270,12 +289,76 @@
 (global-set-key "\C-c\C-a" 'mark-whole-buffer)
 ;; rotate through my color theme list
 (global-set-key "\C-ct" 'rotate-through-themes)
-
-
+ ;; disable help/manuals as F1
+(global-unset-key [f1])
+;; unity logs
+(global-set-key [f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Editor.log")))
+(global-set-key [C-f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Player.log")))
+;; weblogger
+(global-set-key [C-f12] 'htmlize-for-blog)
+(global-set-key [f12] 'weblogger-start-entry)
 
 ;;======================
 ;; CUSTOM FUNCTIONS
 ;;======================
+
+(defun htmlize-for-blog  ()
+  (interactive)
+  (let ((htmlize-output-type 'inline-css))
+    (my-htmlize-region (region-beginning) (region-end))))
+
+
+;; Mostly from http://ruslanspivak.com/2007/08/18/htmlize-your-erlang-code-buffer/
+;; The output of this can be copied in its entirety and pasted directly
+;; to a blog post, for example. 
+(defun my-htmlize-region (beg end)
+  "Htmlize region and put into <pre> tag style that is left in <body> tag, change the font-size to 10pt, and copy the results to the clipboard (kill ring)."
+  (interactive "r")
+  (let* ((buffer-faces (htmlize-faces-in-buffer))
+         (face-map (htmlize-make-face-map (adjoin 'default buffer-faces)))
+         (pre-tag (format
+                   "<pre style=\"%s font-size: 10pt; \">"
+                   (mapconcat #'identity (htmlize-css-specs
+                                          (gethash 'default face-map)) " ")))
+         (htmlized-reg (htmlize-region-for-paste beg end)))
+    (switch-to-buffer-other-window "*htmlized output*")
+    ; clear buffer
+    (kill-region (point-min) (point-max))
+    ; set mode to have syntax highlighting
+    (nxml-mode)
+    (save-excursion
+      (insert htmlized-reg))
+    (while (re-search-forward "<pre>" nil t)
+      (replace-match pre-tag nil nil))
+    (goto-char (point-min))
+    ;; copy results to clipboard and kill the working buffer
+    (clipboard-kill-ring-save (point-min) (point-max))
+    (kill-buffer)
+    ))
+
+
+
+;; only works on osx
+(defun get-number-of-monitors ()
+  (interactive)
+  (do-applescript (format "
+tell application \"System Events\"
+  set _desktops to a reference to every desktop
+end tell
+set x to count of _desktops
+")))
+
+;; (global-set-key [f11] 
+;; 		(lambda () 
+;; 		  (interactive) 
+;; 		  (toggle-frame-fullscreen)
+;; 		  (if (> (get-number-of-monitors) 1)
+;; 		      (progn
+;; 			(modify-frame-parameters (make-frame) '((top + 10) (left + 1920) (width . 144) (height . 80) (vertical-scroll-bars . nil)))
+;; 			(modify-frame-parameters (make-frame) '((top + -210) (left + -1051) (width . 148) (height . 105) (vertical-scroll-bars . nil))))
+;; 		    )))
+
+
 (defun rotate-through-themes ()
   (interactive)
   (setq my-theme-list-pos (% (+ 1 my-theme-list-pos) (length my-theme-list)))
@@ -289,7 +372,11 @@
       )))
 
 
-
+(defun what-face (pos)
+  (interactive "d")
+  (let ((face (or (get-char-property (point) 'read-face-name)
+                  (get-char-property (point) 'face))))
+    (if face (message "Face: %s" face) (message "No face at %d" pos))))
 
 
 
@@ -446,10 +533,18 @@ vi style of % jumping to matching brace."
 			   (local-set-key [C-return] 'next-multiframe-window)))
 (setq org-src-fontify-natively t)
 (setq org-log-done t)
-(add-to-list 'org-src-lang-modes '("boo" . boo))
+(setq org-src-lang-modes
+  '(("ocaml" . tuareg)
+    ("elisp" . emacs-lisp)
+    ("ditaa" . artist)
+    ("asymptote" . asy)
+    ("dot" . fundamental)
+    ("boo" . boo)))
+
 
 ;; nxml-mode
 (setq auto-mode-alist (cons '("\.xaml$" . nxml-mode) auto-mode-alist))
+;; (define-key nxml-mode-map (kbd "\C-c \C-e") 'weblogger-toggle-edit-body)
 
 
 ;; iswitchb-mode
@@ -462,7 +557,8 @@ vi style of % jumping to matching brace."
 	  ("<left>"  . iswitchb-prev-match)
 	  ("<up>"    . ignore             )
 	  ("<down>"  . ignore             ))))
-(iswitchb-mode 1)
+(iswitchb-mode t)
+(icomplete-mode t)
 (add-hook 'iswitchb-define-mode-map-hook 'iswitchb-local-keys)
 
 
@@ -515,6 +611,12 @@ vi style of % jumping to matching brace."
 	  browse-url-browser-function gnus-button-url))
 (global-set-key (kbd "C-c C-o") 'browse-url)
 
+;; always kill gnus before quitting emacs
+(add-hook 'kill-emacs-hook
+	  (lambda ()
+	    (if (get-buffer "*Group*")
+		(gnus-group-exit))))
+
 
 
 
@@ -541,3 +643,28 @@ vi style of % jumping to matching brace."
 (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
 
 
+;; js2-mode
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(setq js2-use-font-lock-faces t)
+
+;; enables undo/redo with window setups. Use C-c left and C-c right
+(winner-mode 1)
+
+;; cg mode
+;; (autoload 'cg-mode "cg" nil t)
+;; (load "~/.emacs.d/cg-mode.el")
+;; (add-to-list 'auto-mode-alist '("\\.shader$" . cg-mode))
+;; (add-to-list 'auto-mode-alist '("\\.cginc$" . cg-mode))
+
+;; nxhtml mode
+;; (load "~/.emacs.d/nxhtml/autostart.el")
+;; (add-to-list 'auto-mode-alist '("\\.html$" . nxhtml-mumamo-mode))
+
+;; boo mode
+;; (setq boo-custom-macros '("client" "server" "standalone" "not_server" "not_client" "not_standalone"))
+;; (require 'boo-mode)
+;; (setq auto-mode-alist (append '(("\\.boo$" . boo-mode)) auto-mode-alist))
+;; (setq auto-mode-alist (append '(("\\.boo.macro$" . boo-mode)) auto-mode-alist))
+
+;; weblogger
+;; (weblogger-select-configuration)
