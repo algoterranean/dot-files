@@ -16,8 +16,8 @@
 (if (file-exists-p "~/.emacs.d/.emacs.work")
     (load-file "~/.emacs.d/.emacs.work")
   (progn
-    (setq at-work nil)
-    (setq at-home t)))
+    (defvar at-work nil)
+    (defvar at-home t)))
 
 
 (require 'package)
@@ -60,7 +60,6 @@
 			ample-zen-theme
 			anti-zenburn-theme
 			assemblage-theme
-			;; base16-theme
 			bubbleberry-theme
 			busybee-theme
 			clues-theme
@@ -73,17 +72,14 @@
 			flatland-theme
 			flatui-theme
 			gandalf-theme
-			;;github-theme
 			grandshell-theme
 			gruvbox-theme
-			hemisu-theme
 			heroku-theme
 			inkpot-theme
 			ir-black-theme
 			jujube-theme
 			late-night-theme
 			leuven-theme
-			moe-theme
 			molokai-theme
 			monochrome-theme
 			monokai-theme
@@ -107,7 +103,6 @@
 			steady-theme
 			subatomic-theme
 			subatomic256-theme
-			;;sublime-theme
 			sunny-day-theme
 			tango-2-theme
 			tango-plus-theme
@@ -156,7 +151,6 @@
 (setq theme-load-from-file nil)
 (load-theme 'zenburn t)
 (defvar my-current-theme 'zenburn)
-(set-frame-font "Consolas for Powerline FixedD-10")
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -373,10 +367,10 @@ vi style of % jumping to matching brace."
 ;;======================
 ;; OSX-SPECIFIC
 ;;======================
-(if (eq system-type 'darwin)
-    (progn
-      (setq mac-option-modifier 'super)
-      (setq mac-command-modifier 'meta)))
+(cond ((eq system-type 'darwin)
+       (setq mac-option-modifier 'super)
+       (setq mac-command-modifier 'meta)
+       (set-frame-font "Consolas for Powerline FixedD-12")))
 
 
 ;;======================
@@ -388,6 +382,7 @@ vi style of % jumping to matching brace."
        (setq ps-lpr-switches '("-q" "-dNOPAUSE" "-dBATCH" "-sDEVICE=mswinpr2"))
        (setq ps-printer-name t)
 
+       (set-frame-font "Consolas for Powerline FixedD-10")
        (add-to-list 'exec-path "c:\\Program Files (x86)\\Mozilla Firefox/")
        (server-start)))
 
@@ -416,6 +411,7 @@ vi style of % jumping to matching brace."
 ;;======================
 ;; HOME-SPECIFIC
 ;;======================
+
 
 (if at-home
     ())
