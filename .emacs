@@ -154,23 +154,26 @@
 
 
 ;; display and visuals
-(setq theme-load-from-file nil)
 (load-theme 'zenburn t)
 (defvar my-current-theme 'zenburn)
+(setq theme-load-from-file nil)
+
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (global-font-lock-mode t)
 (show-paren-mode t)
-(setq transient-mark-mode t) ;; enable visual feedback on selections
 (column-number-mode t)
 (linum-mode t)
-(setq frame-title-format "%b - emacs")
+(setq transient-mark-mode t ;; enable visual feedback on selections
+      frame-title-format "%b - emacs"
+      initial-frame-alist '((fullscreen . maximized)))
+
 
 ;; indentation
-(setq tab-width 4)
-(setq python-indent 4)
-(setq c-default-style "linux" c-basic-offset 4) ;; set the default indentation style for c-mode
+(setq tab-width 4
+      python-indent 4
+      c-default-style "linux" c-basic-offset 4) ;; set the default indentation style for c-mode
 
 ;; powerline
 (set-face-attribute 
@@ -190,24 +193,24 @@
 
 
 ;; init
-(setq inhibit-default-init t)
-(setq default-directory "~/")
-(setq inhibit-startup-screen t)
-(setq initial-scratch-message nil)
-(setq ecb-tip-of-the-day nil)
+(setq inhibit-default-init t
+      default-directory "~/"
+      inhibit-startup-screen t
+      initial-scratch-message nil
+      ecb-tip-of-the-day nil)
 
 ;; quitting
 (setq confirm-kill-emacs 'yes-or-no-p)
 
 ;; backups and autosaves
-(setq backup-inhibited t)
-(setq make-backup-files -1)
+(setq backup-inhibited t
+      make-backup-files -1
+      auto-save-default nil)
 (auto-save-mode nil)
-(setq auto-save-default nil)
 
 ;; debugging
-(setq stack-trace-on-error t)
-(setq debug-on-error t)
+(setq stack-trace-on-error t
+      debug-on-error t)
 
 ;; misc
 (put 'overwrite-mode 'disabled t)
@@ -221,8 +224,8 @@
 (set-keyboard-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
-(setq magic-mode-alist nil) ;; auto-mode-alist is the only list used for file associations
 (cua-mode 0) ;; disable cua mode
+(setq magic-mode-alist nil) ;; auto-mode-alist is the only list used for file associations
 (setq confirm-nonexistent-file-or-buffer nil) ;; do not confirm a new file or buffer
 (setq blink-cursor t) ;; blink the cursor when stationary
 (display-time-mode t)
@@ -455,9 +458,10 @@ vi style of % jumping to matching brace."
 ;; OSX-SPECIFIC
 ;;======================
 (cond ((eq system-type 'darwin)
-       (setq mac-option-modifier 'super)
-       (setq mac-command-modifier 'meta)
-       (set-frame-font "Consolas for Powerline FixedD-12")))
+       (set-frame-font "Consolas for Powerline FixedD-12")
+       (setq mac-option-modifier 'super
+	     mac-command-modifier 'meta
+	     ns-use-native-fullscreen t)))
 
 
 ;;======================
@@ -465,12 +469,11 @@ vi style of % jumping to matching brace."
 ;;======================
 (cond ((eq system-type 'windows-nt)
        (setenv "GS_LIB" "c:/gs/gs8.15/lib;c:/gs/fonts")
-       (setq ps-lpr-command "c:/gs/gs8.15/bin/gswin32c.exe")
-       (setq ps-lpr-switches '("-q" "-dNOPAUSE" "-dBATCH" "-sDEVICE=mswinpr2"))
-       (setq ps-printer-name t)
-
        (set-frame-font "Consolas for Powerline FixedD-10")
        (add-to-list 'exec-path "c:\\Program Files (x86)\\Mozilla Firefox/")
+       (setq ps-lpr-command "c:/gs/gs8.15/bin/gswin32c.exe"
+	     ps-lpr-switches '("-q" "-dNOPAUSE" "-dBATCH" "-sDEVICE=mswinpr2")
+	     ps-printer-name t)
        (server-start)))
 
 ;; ;; fixes issue with python.el not loading
@@ -511,13 +514,13 @@ vi style of % jumping to matching brace."
 (defun my-c-mode-common-hook ()
   ;; my customizations for all of c-mode, c++-mode, objc-mode, java-mode
   (c-set-offset 'substatement-open 0)
-  (setq c++-tab-always-indent t)
-  (setq c-basic-offset 4)                  ;; Default is 2
-  (setq c-indent-level 4)                  ;; Default is 2
-  ;; (setq c-auto-newline t)
-  (setq tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60))
-  (setq tab-width 4)
-  (setq indent-tabs-mode t)  ; use spaces only if nil
+  (setq c++-tab-always-indent t
+	c-basic-offset 4                  ;; Default is 2
+	c-indent-level 4                  ;; Default is 2
+	;; (setq c-auto-newline t)
+	tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
+	tab-width 4
+	indent-tabs-mode t)  ; use spaces only if nil
 )
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
@@ -531,15 +534,14 @@ vi style of % jumping to matching brace."
       '((sequence "TODO(!)" "STARTED(!)" "|" "DONE(!)" "CANCELED(!)")))
 (add-hook 'org-mode-hook (lambda ()
 			   (local-set-key [C-return] 'next-multiframe-window)))
-(setq org-src-fontify-natively t)
-(setq org-log-done t)
-(setq org-src-lang-modes
-  '(("ocaml" . tuareg)
-    ("elisp" . emacs-lisp)
-    ("ditaa" . artist)
-    ("asymptote" . asy)
-    ("dot" . fundamental)
-    ("boo" . boo)))
+(setq org-src-fontify-natively t
+      org-log-done t
+      org-src-lang-modes '(("ocaml" . tuareg)
+			   ("elisp" . emacs-lisp)
+			   ("ditaa" . artist)
+			   ("asymptote" . asy)
+			   ("dot" . fundamental)
+			   ("boo" . boo)))
 
 
 ;; nxml-mode
@@ -574,8 +576,8 @@ vi style of % jumping to matching brace."
 	    ))
 (if (eq system-type 'windows-nt)
     (progn
-      (setq magit-git-executable "C:/Program Files (x86)/Git/bin/git.exe")
-      (setq exec-path (add-to-list 'exec-path "C:/Program Files (x86)/Git/bin"))
+      (setq magit-git-executable "C:/Program Files (x86)/Git/bin/git.exe"
+	    exec-path (add-to-list 'exec-path "C:/Program Files (x86)/Git/bin"))
       (setenv "PATH" (concat "C:\\Program Files (x86)\\Git\\bin;" (getenv "PATH")))))
 ;; disable vc-git dues to slowness
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
@@ -587,9 +589,9 @@ vi style of % jumping to matching brace."
 (add-hook 'csharp-mode-hook 
 	 (lambda ()
 	   (c-set-style "linux")
-	   (setq c-basic-offset 4)
 	   (c-set-offset substatement-open 0)
-	   (setq c-auto-newline t)
+	   (setq c-basic-offset 4
+		 c-auto-newline t)
 	   (local-set-key (kbd "{") 'c-electric-brace)))
 
 
