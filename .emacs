@@ -169,6 +169,10 @@
       frame-title-format "%b - emacs"
       initial-frame-alist '((fullscreen . maximized)))
 
+(setq echo-keystrokes 0.1)
+(setq font-lock-maximum-decoration t)
+(setq font-lock-verbose nil)
+
 
 ;; indentation
 (setq tab-width 4
@@ -229,6 +233,12 @@
 (setq confirm-nonexistent-file-or-buffer nil) ;; do not confirm a new file or buffer
 (setq blink-cursor t) ;; blink the cursor when stationary
 (display-time-mode t)
+
+(setq delete-by-moving-to-trash t)
+(setq shift-select-mode nil)
+(setq truncate-partial-width-windows nil)
+
+(setq auto-compression-mode t) ;; transparently open compressed files
 
 ;; (nav-disable-overeager-window-splitting) ;; nav
 
@@ -318,6 +328,15 @@
 ;;======================
 ;; CUSTOM FUNCTIONS
 ;;======================
+
+;; (defun starter-kit-pretty-lambdas ()
+;;   (font-lock-add-keywords
+;;    nil `(("(\\(lambda\\>\\)"
+;;           (0 (progn (compose-region (match-beginning 1) (match-end 1)
+;;                                     ,(make-char 'greek-iso8859-7 107))
+;;                     nil))))))
+;; (starter-kit-pretty-lambdas)
+
 
 (defun setup-unity-windows (fn)
   (interactive)
