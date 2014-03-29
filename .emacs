@@ -307,6 +307,9 @@
     ;; expand/contract region
     ([?\C-=] er/expand-region)
     ([?\C-+] er/contract-region)
+    ;; move the current line of text up or down
+    ("\C-c\C-p" move-line-up)
+    ("\C-c\C-n" move-line-down)
     ))
 
 
@@ -318,6 +321,7 @@
   (global-set-key (car key-list) (car (cdr key-list))))
 
 (global-set-keys my-global-keybindings)
+
 
 
 ;; disable help/manuals as F1
@@ -336,6 +340,40 @@
 ;;                                     ,(make-char 'greek-iso8859-7 107))
 ;;                     nil))))))
 ;; (starter-kit-pretty-lambdas)
+
+
+;; from http://www.mygooglest.com/fni/dot-emacs.html
+;; move (shift) a line of text up or down like you would do in Eclipse
+;; pressing `M-up' (or `M-down')
+(defun move-line (n)
+  "Move the current line up or down by N lines."
+  (interactive "p")
+  (let ((col (current-column))
+        start
+        end)
+    (beginning-of-line)
+    (setq start (point))
+    (end-of-line)
+    (forward-char)
+    (setq end (point))
+    (let ((line-text (delete-and-extract-region start end)))
+      (forward-line n)
+      (insert line-text)
+      ;; restore point to original column in moved line
+      (forward-line -1)
+      (forward-char col))))
+
+(defun move-line-up (n)
+  "Move the current line up by N lines."
+  (interactive "p")
+  (move-line (if (null n) -1 (- n))))
+
+(defun move-line-down (n)
+  "Move the current line down by N lines."
+  (interactive "p")
+  (move-line (if (null n) 1 n)))
+
+
 
 
 (defun watch-log-file (fn)
