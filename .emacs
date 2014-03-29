@@ -294,8 +294,8 @@
     ;; rotate through my color theme list   
     ("\C-ct" rotate-through-themes)
     ;; unity logs
-    ([f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Editor.log")))
-    ([C-f5] (lambda () (interactive) (setup-unity-windows "~/Library/Logs/Unity/Player.log")))
+    ([f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Editor.log")))
+    ([C-f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Player.log")))
     ;; weblogger
     ([C-f12] htmlize-for-blog)
     ([f12] weblogger-start-entry)
@@ -338,7 +338,7 @@
 ;; (starter-kit-pretty-lambdas)
 
 
-(defun setup-unity-windows (fn)
+(defun watch-log-file (fn)
   (interactive)
   ;;(split-window-horizontally 50)
   (find-file fn)
