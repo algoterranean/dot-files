@@ -247,6 +247,8 @@
 ;; KEYBINDINGS
 ;;======================
 
+
+
 ;; TODO: create function to pick one of these keybindings at random and quiz
 ;; user about what it does or what the keybinding is for that functions
 (defvar my-global-keybindings 
@@ -313,19 +315,11 @@
     ))
 
 
-(defun global-set-keys (key-list)
-  (interactive)
-  (mapcar 'key-helper key-list))
-
-(defun key-helper (key-list)
-  (global-set-key (car key-list) (car (cdr key-list))))
-
-(global-set-keys my-global-keybindings)
-
-
+;; set all global keybindings
+(mapcar (lambda (x) (global-set-key (car x) (car (cdr x)))) my-global-keybindings)
 
 ;; disable help/manuals as F1
-(global-unset-key [f1])   
+(global-unset-key [f1])
 
 
 
@@ -340,6 +334,24 @@
 ;;                                     ,(make-char 'greek-iso8859-7 107))
 ;;                     nil))))))
 ;; (starter-kit-pretty-lambdas)
+
+
+  
+
+;; awesome. NOTE: modes need to be added here manually
+;; auto-indent pasted code
+(defadvice yank (after indent-region activate)
+  (if (member major-mode
+              '(emacs-lisp-mode scheme-mode lisp-mode c-mode c++-mode
+                objc-mode latex-mode plain-tex-mode python-mode boo-mode))
+      (indent-region (region-beginning) (region-end) nil)))
+
+(defadvice yank-pop (after indent-region activate)
+  (if (member major-mode
+              '(emacs-lisp-mode scheme-mode lisp-mode c-mode c++-mode
+                objc-mode latex-mode plain-tex-mode python-mode boo-mode))
+      (indent-region (region-beginning) (region-end) nil)))
+
 
 
 ;; from http://www.mygooglest.com/fni/dot-emacs.html
