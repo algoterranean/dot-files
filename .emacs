@@ -1,25 +1,19 @@
-;; ~/.emacs, ~/.emacs.el, or ~/.emacs.d/init.el
-
-;; emacs-major-version
-;; emacs-minor-version
-;; system-name
-;; user-emacs-directory
-;; user-init-file
-
 
 ;;======================
 ;; SETUP
 ;;======================
 
+(add-to-list 'load-path "~/.emacs.d/")
+
+;; support for home/work profiles that need to be kept separate for security reasons
+(defvar work-emacs-file "~/.emacs.work")
+(defvar home-emacs-file "~/.emacs.home")
+(cond ((file-exists-p work-emacs-file)
+       (load-file work-emacs-file))
+      ((file-exists-p home-emacs-file)
+       (load-file home-emacs-file)))
+
 (require 'cl)
-
-(if (file-exists-p "~/.emacs.d/.emacs.work")
-    (load-file "~/.emacs.d/.emacs.work")
-  (progn
-    (defvar at-work nil)
-    (defvar at-home t)))
-
-
 (require 'package)
 (setq package-archives
       '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -30,20 +24,18 @@
 
 (defvar my-package-list '(anzu
 			  adaptive-wrap
+			  buffer-stack
 			  crosshairs
-			  ;;boo-mode
-			  ;;cg-mode (not in package archives :( )
-			  ;;nxhtml-mumamo-mode
-			  csharp-mode 
+			  csharp-mode
 			  django-mode
 			  display-theme
-			  gist 
-			  htmlfontify 
-			  htmlize 
+			  gist
+			  htmlfontify
+			  htmlize
 			  fringe-current-line
-			  itail 
+			  itail
 			  js2-mode
-			  magit 
+			  magit
 			  markdown-mode
 			  powerline
 			  python-mode
@@ -51,13 +43,18 @@
 			  weblogger))
 
 (defvar my-require-list '(adaptive-wrap
+			  buffer-stack
 			  edmacro
 			  display-theme
 			  magit
 			  org
 			  powerline
-			  python-mode
-			  vc))
+			  vc
+			  ;; non-packages
+			  boo-mode
+			  cg-mode
+			  ;; nxhtml-mumamo-mode
+			  ))
 
 (defvar my-theme-list-pos 0)
 (defvar my-theme-list '(afternoon-theme
@@ -167,7 +164,9 @@
 (linum-mode t)
 (setq transient-mark-mode t ;; enable visual feedback on selections
       frame-title-format "%b - emacs"
-      initial-frame-alist '((fullscreen . maximized)))
+      initial-frame-alist '((fullscreen . maximized))
+      ns-pop-up-frames nil)
+
 
 (setq echo-keystrokes 0.1)
 (setq font-lock-maximum-decoration t)
@@ -240,6 +239,9 @@
 
 (setq auto-compression-mode t) ;; transparently open compressed files
 
+;; don't show these buffers when trying to switch
+(setq buffer-stack-untracked '("*Help*" "*Completions*" "*scratch*" "*Messages*" "*Backtrace*" "*Warnings*"))
+
 ;; (nav-disable-overeager-window-splitting) ;; nav
 
 
@@ -268,6 +270,8 @@
     ;; comment/uncomment
     ("\C-cc" comment-region)
     ("\C-cu" uncomment-region)
+    ;; eshell
+    ([f11] eshell)
     ;; grep
     ([C-f10] search-proj-recursively)
     ([f10] search-proj-directory)
@@ -314,6 +318,9 @@
     ("\C-c\C-n" move-line-down)
     ))
 
+;; ;; better buffer movement
+;; (global-set-key (kbd "S-<right>") 'buffer-stack-up)
+;; (global-set-key (kbd "S-<left>") 'buffer-stack-down)
 
 ;; set all global keybindings
 (mapcar (lambda (x) (global-set-key (car x) (car (cdr x)))) my-global-keybindings)
@@ -582,27 +589,25 @@ vi style of % jumping to matching brace."
 
 
 ;;======================
-;; WORK-SPECIFC
-;;======================
-
-
-
-;;======================
-;; HOME-SPECIFIC
-;;======================
-
-
-(if at-home
-    ())
-
-;;======================
 ;; MODES
 ;;======================
+
+;; eshell
+(add-hook 'eshell-mode-hook
+	  '(lambda nil
+	     (eshell/export "DYLD_FALLBACK_LIBRARY_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib:$DYLD_FALLBACK_LIBRARY_PATH:/usr/lib")
+	     ;; (eshell/export "EPOCROOT=\\Paragon\\")
+	     ;; (let ((path))
+	     ;;   (setq path ".;c:/program files/microsoft visual studio/vb98/")
+	     ;;   (setq path (concat path ";d:/program files/microsoft visual studio/vc98/bin"))
+	     ;;   (setenv "PATH" path))
+	     ;; (local-set-key "\C-u" 'eshell-kill-input))
+	     ))
 
 ;; c-mode
 (defun my-c-mode-common-hook ()
   ;; my customizations for all of c-mode, c++-mode, objc-mode, java-mode
-  (c-set-offset 'substatement-open 0)
+  ;; (c-set-offset 'substatement-open 0)
   (setq c++-tab-always-indent t
 	c-basic-offset 4                  ;; Default is 2
 	c-indent-level 4                  ;; Default is 2
@@ -678,7 +683,7 @@ vi style of % jumping to matching brace."
 (add-hook 'csharp-mode-hook 
 	 (lambda ()
 	   (c-set-style "linux")
-	   (c-set-offset substatement-open 0)
+	   ;; (c-set-offset substatement-open 0)
 	   (setq c-basic-offset 4
 		 c-auto-newline t)
 	   (local-set-key (kbd "{") 'c-electric-brace)))
@@ -752,10 +757,10 @@ vi style of % jumping to matching brace."
 ;; (add-to-list 'auto-mode-alist '("\\.html$" . nxhtml-mumamo-mode))
 
 ;; boo mode
-;; (setq boo-custom-macros '("client" "server" "standalone" "not_server" "not_client" "not_standalone"))
-;; (require 'boo-mode)
-;; (setq auto-mode-alist (append '(("\\.boo$" . boo-mode)) auto-mode-alist))
-;; (setq auto-mode-alist (append '(("\\.boo.macro$" . boo-mode)) auto-mode-alist))
+(setq boo-custom-macros '("client" "server" "standalone" "not_server" "not_client" "not_standalone"))
+(add-to-list 'auto-mode-alist '("\\.boo$" . boo-mode))
+(add-to-list 'auto-mode-alist '("\\.boo.macro$" . boo-mode))
+(add-to-list 'auto-mode-alist '(".algo$" . boo-mode))
 
 ;; weblogger
 ;; (weblogger-select-configuration)
