@@ -467,6 +467,7 @@ set x to count of _desktops
     (progn
       (disable-theme my-current-theme)
       (load-theme next-theme t)
+      (message "Switched to theme %s." next-theme)
       (setq my-current-theme next-theme)
       )))
 
