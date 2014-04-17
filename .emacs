@@ -272,6 +272,10 @@
     ("\C-cu" uncomment-region)
     ;; eshell
     ([f11] eshell)
+    ;; TODO add toggle for "desktop" saving, logging, and switching
+
+    ;; native osx fullscreen
+    ([f7] toggle-frame-fullscreen)
     ;; grep
     ([C-f10] search-proj-recursively)
     ([f10] search-proj-directory)
@@ -302,6 +306,9 @@
     ;; unity logs
     ([f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Editor.log")))
     ([C-f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Player.log")))
+    ;; unity/algoterranean interpreter
+    ([C-f11] (lambda () (interactive) (watch-log-file "xxxxxxxxxxx")))
+
     ;; weblogger
     ([C-f12] htmlize-for-blog)
     ([f12] weblogger-start-entry)
@@ -322,11 +329,14 @@
 ;; (global-set-key (kbd "S-<right>") 'buffer-stack-up)
 ;; (global-set-key (kbd "S-<left>") 'buffer-stack-down)
 
+;; disable help/manuals as F1
+(global-unset-key [f1])
+(global-unset-key [f11])
+
 ;; set all global keybindings
 (mapcar (lambda (x) (global-set-key (car x) (car (cdr x)))) my-global-keybindings)
 
-;; disable help/manuals as F1
-(global-unset-key [f1])
+
 
 
 
@@ -467,7 +477,6 @@ set x to count of _desktops
     (progn
       (disable-theme my-current-theme)
       (load-theme next-theme t)
-      (message "Switched to theme %s." next-theme)
       (setq my-current-theme next-theme)
       )))
 
