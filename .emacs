@@ -1,5 +1,4 @@
 
-
 ;;======================
 ;; SETUP
 ;;======================
@@ -369,10 +368,10 @@
 
 (defun toggle-full-screen-cross-platform ()
   (interactive)
-  (cond ((eq system-type 'darwin) (toggle-frame-full-screen))
+  (cond ((eq system-type 'darwin) (toggle-frame-fullscreen))
 	((eq system-type 'windows-nt) (shell-command "emacs_fullscreen.exe"))))
-	 
-   
+
+
 
 ;; (defun starter-kit-pretty-lambdas ()
 ;;   (font-lock-add-keywords
@@ -383,20 +382,20 @@
 ;; (starter-kit-pretty-lambdas)
 
 
-  
+
 
 ;; awesome. NOTE: modes need to be added here manually
 ;; auto-indent pasted code
 (defadvice yank (after indent-region activate)
   (if (member major-mode
               '(emacs-lisp-mode scheme-mode lisp-mode c-mode c++-mode
-                objc-mode latex-mode plain-tex-mode python-mode boo-mode))
+				objc-mode latex-mode plain-tex-mode python-mode boo-mode))
       (indent-region (region-beginning) (region-end) nil)))
 
 (defadvice yank-pop (after indent-region activate)
   (if (member major-mode
               '(emacs-lisp-mode scheme-mode lisp-mode c-mode c++-mode
-                objc-mode latex-mode plain-tex-mode python-mode boo-mode))
+				objc-mode latex-mode plain-tex-mode python-mode boo-mode))
       (indent-region (region-beginning) (region-end) nil)))
 
 
@@ -461,9 +460,9 @@
                                           (gethash 'default face-map)) " ")))
          (htmlized-reg (htmlize-region-for-paste beg end)))
     (switch-to-buffer-other-window "*htmlized output*")
-    ; clear buffer
+					; clear buffer
     (kill-region (point-min) (point-max))
-    ; set mode to have syntax highlighting
+					; set mode to have syntax highlighting
     (nxml-mode)
     (save-excursion
       (insert htmlized-reg))
@@ -502,11 +501,12 @@ set x to count of _desktops
   (interactive)
   (setq my-theme-list-pos (% (+ 1 my-theme-list-pos) (length my-theme-list)))
   (let ((next-theme (car (read-from-string
-			 (car (split-string (symbol-name (nth (% (+ 1 my-theme-list-pos) 
-								 (length my-theme-list)) my-theme-list)) "-theme"))))))
+			  (car (split-string (symbol-name (nth (% (+ 1 my-theme-list-pos) 
+								  (length my-theme-list)) my-theme-list)) "-theme"))))))
     (progn
       (disable-theme my-current-theme)
       (load-theme next-theme t)
+      (message "Loaded theme %s." next-theme)
       (setq my-current-theme next-theme)
       )))
 
@@ -552,12 +552,12 @@ vi style of % jumping to matching brace."
   (interactive "p")
   (message "%s" last-command)
   (if (not (memq last-command '(set-mark cua-set-mark goto-match-paren down-list up-list end-of-defun
-                                beginning-of-defun backward-sexp forward-sexp backward-up-list forward-paragraph
-                                backward-paragraph end-of-buffer beginning-of-buffer backward-word forward-word
-                                mwheel-scroll backward-word forward-word mouse-start-secondary mouse-yank-secondary
-                                mouse-secondary-save-then-kill move-end-of-line move-beginning-of-line backward-char
-                                forward-char scroll-up scroll-down scroll-left scroll-right
-                                mouse-set-point next-buffer previous-buffer next-line previous-line)))
+					 beginning-of-defun backward-sexp forward-sexp backward-up-list forward-paragraph
+					 backward-paragraph end-of-buffer beginning-of-buffer backward-word forward-word
+					 mwheel-scroll backward-word forward-word mouse-start-secondary mouse-yank-secondary
+					 mouse-secondary-save-then-kill move-end-of-line move-beginning-of-line backward-char
+					 forward-char scroll-up scroll-down scroll-left scroll-right
+					 mouse-set-point next-buffer previous-buffer next-line previous-line)))
       (self-insert-command (or arg 1))
     (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
           ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
@@ -656,7 +656,7 @@ vi style of % jumping to matching brace."
 	tab-stop-list '(4 8 12 16 20 24 28 32 36 40 44 48 52 56 60)
 	tab-width 4
 	indent-tabs-mode t)  ; use spaces only if nil
-)
+  )
 
 (add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
 
@@ -723,12 +723,12 @@ vi style of % jumping to matching brace."
 ;; csharp-mode
 (setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
 (add-hook 'csharp-mode-hook 
-	 (lambda ()
-	   (c-set-style "linux")
-	   ;; (c-set-offset substatement-open 0)
-	   (setq c-basic-offset 4
-		 c-auto-newline t)
-	   (local-set-key (kbd "{") 'c-electric-brace)))
+	  (lambda ()
+	    (c-set-style "linux")
+	    ;; (c-set-offset substatement-open 0)
+	    (setq c-basic-offset 4
+		  c-auto-newline t)
+	    (local-set-key (kbd "{") 'c-electric-brace)))
 
 
 
@@ -740,9 +740,9 @@ vi style of % jumping to matching brace."
 ;; gnus
 ;; sort so that newest entries in an RSS feed show up at the top
 (setq gnus-thread-sort-functions
-           '((not gnus-thread-sort-by-number)))
-             ;; gnus-thread-sort-by-subject
-             ;; (not gnus-thread-sort-by-total-score)))
+      '((not gnus-thread-sort-by-number)))
+;; gnus-thread-sort-by-subject
+;; (not gnus-thread-sort-by-total-score)))
 (if (eq system-type 'windows-nt)
     (setq gnus-button-url 'browse-url-generic
 	  browse-url-generic-program "firefox.exe"
@@ -763,9 +763,9 @@ vi style of % jumping to matching brace."
 (defun sof/dired-sort ()
   "Dired sort hook to list directories first."
   (save-excursion
-   (let (buffer-read-only)
-     (forward-line 2) ;; beyond dir. header
-     (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
+    (let (buffer-read-only)
+      (forward-line 2) ;; beyond dir. header
+      (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
   (and (featurep 'xemacs)
        (fboundp 'dired-insert-set-properties)
        (dired-insert-set-properties (point-min) (point-max)))
