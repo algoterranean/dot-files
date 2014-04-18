@@ -1,4 +1,5 @@
 
+
 ;;======================
 ;; SETUP
 ;;======================
@@ -23,26 +24,41 @@
 
 
 (defvar my-package-list '(anzu
+			  ace-jump-mode
 			  adaptive-wrap
 			  buffer-stack
 			  crosshairs
 			  csharp-mode
 			  django-mode
 			  display-theme
+			  edit-server
+			  flycheck
+			  flymake
+			  fringe-current-line
 			  gist
+			  helm
+			  helm-chrome
+			  helm-c-yasnippet
+			  helm-flymake
+			  helm-git
+			  helm-google
+			  helm-proc
 			  htmlfontify
 			  htmlize
-			  fringe-current-line
 			  itail
 			  js2-mode
 			  magit
 			  markdown-mode
+			  mark-multiple
 			  powerline
 			  python-mode
 			  rainbow-mode
-			  weblogger))
+			  server
+			  weblogger
+			  yasnippet))
 
-(defvar my-require-list '(adaptive-wrap
+(defvar my-require-list '(ace-jump-mode
+			  adaptive-wrap
 			  buffer-stack
 			  edmacro
 			  display-theme
@@ -249,7 +265,7 @@
 ;; KEYBINDINGS
 ;;======================
 
-
+(kbd "C-c SPC")
 
 ;; TODO: create function to pick one of these keybindings at random and quiz
 ;; user about what it does or what the keybinding is for that functions
@@ -270,6 +286,8 @@
     ;; comment/uncomment
     ("\C-cc" comment-region)
     ("\C-cu" uncomment-region)
+    ;; ace-jump 
+    ("\C-c " ace-jump-mode) ;; C-c SPC
     ;; eshell
     ([f11] eshell)
     ;; TODO add toggle for "desktop" saving, logging, and switching
@@ -307,7 +325,7 @@
     ([f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Editor.log")))
     ([C-f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Player.log")))
     ;; unity/algoterranean interpreter
-    ([C-f11] (lambda () (interactive) (watch-log-file "xxxxxxxxxxx")))
+    ([C-f11] (lambda () (interactive) (watch-log-file unity-interpreter-log)))
 
     ;; weblogger
     ([C-f12] htmlize-for-blog)
@@ -567,7 +585,8 @@ vi style of % jumping to matching brace."
        (set-frame-font "Consolas for Powerline FixedD-12")
        (setq mac-option-modifier 'super
 	     mac-command-modifier 'meta
-	     ns-use-native-fullscreen t)))
+	     ns-use-native-fullscreen nil    ;; so nice
+	     )))
 
 
 ;;======================
@@ -686,6 +705,7 @@ vi style of % jumping to matching brace."
 ;; disable vc-git dues to slowness
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
 (setq vc-handled-backends nil)
+;; (setq magit-emacscli
 
 
 ;; csharp-mode
@@ -774,3 +794,7 @@ vi style of % jumping to matching brace."
 
 ;; weblogger
 ;; (weblogger-select-configuration)
+
+
+
+
