@@ -295,8 +295,8 @@
     ([f11] eshell)
     ;; TODO add toggle for "desktop" saving, logging, and switching
 
-    ;; native osx fullscreen
-    ([f7] toggle-frame-fullscreen)
+    ;; native fullscreen for win32 and osx
+    ([f7] toggle-full-screen-cross-platform)
     ;; grep
     ([C-f10] search-proj-recursively)
     ([f10] search-proj-directory)
