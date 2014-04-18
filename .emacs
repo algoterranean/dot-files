@@ -53,6 +53,7 @@
 			  markdown-mode
 			  mark-multiple
 			  powerline
+			  popwin
 			  python-mode
 			  rainbow-mode
 			  server
@@ -68,6 +69,7 @@
 			  magit
 			  org
 			  powerline
+			  popwin
 			  vc
 			  ;; non-packages
 			  boo-mode
@@ -364,6 +366,13 @@
 ;;======================
 ;; CUSTOM FUNCTIONS
 ;;======================
+
+(defun toggle-full-screen-cross-platform ()
+  (interactive)
+  (cond ((eq system-type 'darwin) (toggle-frame-full-screen))
+	((eq system-type 'windows-nt) (shell-command "emacs_fullscreen.exe"))))
+	 
+   
 
 ;; (defun starter-kit-pretty-lambdas ()
 ;;   (font-lock-add-keywords
@@ -799,6 +808,5 @@ vi style of % jumping to matching brace."
 ;; weblogger
 ;; (weblogger-select-configuration)
 
-
-
-
+;; popwin-mode
+(popwin-mode 1)
