@@ -30,6 +30,8 @@
 			  crosshairs
 			  csharp-mode
 			  django-mode
+			  dired-details
+			  dired-details+
 			  display-theme
 			  edit-server
 			  flycheck
@@ -62,6 +64,7 @@
 			  buffer-stack
 			  edmacro
 			  display-theme
+			  dired-details+
 			  magit
 			  org
 			  powerline
@@ -747,7 +750,6 @@ vi style of % jumping to matching brace."
 
 
 ;; dired
-(setq ls-lisp-ignore-case t)
 
 (defun sof/dired-sort ()
   "Dired sort hook to list directories first."
@@ -761,7 +763,9 @@ vi style of % jumping to matching brace."
   (set-buffer-modified-p nil))
 
 (add-hook 'dired-after-readin-hook 'sof/dired-sort)
-;; (require 'dired-single)
+
+(setq dired-details-hidden-string "")
+
 
 
 
