@@ -41,12 +41,13 @@
 			  helm-chrome
 			  helm-c-yasnippet
 			  helm-flymake
-			  helm-git
+			  helm-ls-git
 			  helm-google
 			  helm-proc
+			  ;; hide-comnt ;; locks up emacs?
 			  htmlfontify
 			  htmlize
-			  itail
+			  itail 
 			  js2-mode
 			  magit
 			  markdown-mode
@@ -292,10 +293,14 @@
     ("\C-cu" uncomment-region)
     ;; ace-jump 
     ("\C-c " ace-jump-mode) ;; C-c SPC
+    ;; helm
+    ("\C-cf" helm-find-files)
+    ("\C-cg" helm-chrome-bookmarks)
+    ("\C-cb" helm-buffers-list)
+    ("\C-cl" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
     ;; eshell
     ([f11] eshell)
     ;; TODO add toggle for "desktop" saving, logging, and switching
-
     ;; native fullscreen for win32 and osx
     ([f7] toggle-full-screen-cross-platform)
     ;; grep
@@ -317,7 +322,7 @@
     ;; insert today's date in MM.DD.YYYY format
     ("\C-cd" insert-date)
     ;; org stuff
-    ("\C-cl" org-store-link)
+    ;; ("\C-cl" org-store-link) ;; TODO remap this
     ("\C-ca" org-agenda)
     ;; cycle through kill ring in reverse
     ("\M-Y" yank-pop-forwards) ; M-Y (Meta-Shift-Y)
@@ -345,6 +350,12 @@
     ;; move the current line of text up or down
     ("\C-c\C-p" move-line-up)
     ("\C-c\C-n" move-line-down)
+
+    ;; notes:
+    ;; C-u C-x =  (
+    ;; C-c x is reserved for users (where x is a letter)
+    ;; C-c followed by a control character is reserved for major modes
+    ;; 
     ))
 
 ;; ;; better buffer movement
@@ -497,6 +508,8 @@ set x to count of _desktops
 ;; 		    )))
 
 
+
+
 (defun rotate-through-themes ()
   (interactive)
   (setq my-theme-list-pos (% (+ 1 my-theme-list-pos) (length my-theme-list)))
@@ -585,8 +598,7 @@ vi style of % jumping to matching brace."
   (require 'bytecomp)
   (if (string= (buffer-file-name) (expand-file-name (concat default-directory ".emacs")))
       (byte-compile-file (buffer-file-name))))
-(add-hook 'after-save-hook 'autocompile)
-
+;; (add-hook 'after-save-hook 'autocompile) ;; disable for now... random end of file problems... 
 
 
 
@@ -644,6 +656,21 @@ vi style of % jumping to matching brace."
 	     ;;   (setenv "PATH" path))
 	     ;; (local-set-key "\C-u" 'eshell-kill-input))
 	     ))
+
+;; helm pcomplete mode
+(add-hook 'eshell-mode-hook
+          #'(lambda ()
+              (define-key eshell-mode-map
+                [remap eshell-pcomplete]
+                'helm-esh-pcomplete)))
+
+;; enable history in helm
+(add-hook 'eshell-mode-hook
+	  #'(lambda ()
+	      (define-key eshell-mode-map
+		(kbd "M-p")
+		'helm-eshell-history)))
+
 
 ;; c-mode
 (defun my-c-mode-common-hook ()
@@ -749,6 +776,7 @@ vi style of % jumping to matching brace."
 	  browse-url-browser-function gnus-button-url))
 (global-set-key (kbd "C-c C-o") 'browse-url)
 
+
 ;; always kill gnus before quitting emacs
 (add-hook 'kill-emacs-hook
 	  (lambda ()
@@ -808,5 +836,8 @@ vi style of % jumping to matching brace."
 ;; weblogger
 ;; (weblogger-select-configuration)
 
+
 ;; popwin-mode
 (popwin-mode 1)
+
+
