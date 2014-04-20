@@ -25,26 +25,34 @@
 (defvar my-package-list '(anzu
 			  ace-jump-mode
 			  adaptive-wrap
+			  apples-mode
 			  buffer-stack
 			  crosshairs
 			  csharp-mode
 			  django-mode
+			  dired+
 			  dired-details
 			  dired-details+
 			  display-theme
 			  edit-server
+			  erc-terminal-notifier
+			  ercn
 			  flycheck
-			  flymake
+			  flyspell
 			  fringe-current-line
 			  gist
 			  helm
 			  helm-chrome
 			  helm-c-yasnippet
-			  helm-flymake
+			  helm-flycheck
 			  helm-ls-git
 			  helm-google
 			  helm-proc
-			  ;; hide-comnt ;; locks up emacs?
+			  helm-dictionary
+			  helm-themes
+			  helm-swoop
+			  ;; helm-spaces ;; TODO make something similar for workgroups2
+			  hide-comnt ;; locks up emacs?
 			  htmlfontify
 			  htmlize
 			  itail 
@@ -52,24 +60,37 @@
 			  magit
 			  markdown-mode
 			  mark-multiple
+			  nav
+			  pianobar
 			  powerline
 			  popwin
 			  python-mode
 			  rainbow-mode
+			  scratch-persist
+			  session
 			  server
 			  weblogger
+			  workgroups2   ;; origional workgroups.el is buggy
 			  yasnippet))
 
 (defvar my-require-list '(ace-jump-mode
 			  adaptive-wrap
+			  apples-mode
 			  buffer-stack
 			  edmacro
+			  erc-nicklist
 			  display-theme
+			  dired+
 			  dired-details+
 			  magit
+			  nav
 			  org
 			  powerline
 			  popwin
+			  session
+			  workgroups2
+			  ;; spaces
+			  scratch-persist
 			  vc
 			  ;; non-packages
 			  boo-mode
@@ -224,13 +245,14 @@
       ecb-tip-of-the-day nil)
 
 ;; quitting
-(setq confirm-kill-emacs 'yes-or-no-p)
+(setq confirm-kill-emacs nil) ;;'yes-or-no-p)
 
 ;; backups and autosaves
 (setq backup-inhibited t
       make-backup-files -1
       auto-save-default nil)
 (auto-save-mode nil)
+
 
 ;; debugging
 (setq stack-trace-on-error t
@@ -298,6 +320,16 @@
     ("\C-cg" helm-chrome-bookmarks)
     ("\C-cb" helm-buffers-list)
     ("\C-cl" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
+    ("\C-cs" helm-swoop) 
+    ;; irc
+    ("\C-ci" start-my-erc)
+    ;; TODO add command to toggle erc-nicklist
+    ;; TOOD figure out notification window system, particularly for private chat
+
+    ;; TODO create helm support for workgroups2
+    ;; ("\C-cs" helm-spaces)
+    ;; pianobar
+    ("\C-cp" pianobar)
     ;; eshell
     ([f11] eshell)
     ;; TODO add toggle for "desktop" saving, logging, and switching
@@ -649,6 +681,8 @@ vi style of % jumping to matching brace."
 (add-hook 'eshell-mode-hook
 	  '(lambda nil
 	     (eshell/export "DYLD_FALLBACK_LIBRARY_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib:$DYLD_FALLBACK_LIBRARY_PATH:/usr/lib")
+	     (setq eshell-path-env "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
+
 	     ;; (eshell/export "EPOCROOT=\\Paragon\\")
 	     ;; (let ((path))
 	     ;;   (setq path ".;c:/program files/microsoft visual studio/vb98/")
@@ -656,6 +690,8 @@ vi style of % jumping to matching brace."
 	     ;;   (setenv "PATH" path))
 	     ;; (local-set-key "\C-u" 'eshell-kill-input))
 	     ))
+
+(setq eshell-path-env "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
 
 ;; helm pcomplete mode
 (add-hook 'eshell-mode-hook
@@ -738,8 +774,8 @@ vi style of % jumping to matching brace."
 	    ))
 (if (eq system-type 'windows-nt)
     (progn
-      (setq magit-git-executable "C:/Program Files (x86)/Git/bin/git.exe"
-	    exec-path (add-to-list 'exec-path "C:/Program Files (x86)/Git/bin"))
+      (setq magit-git-executable "C:/Program Files (x86)/Git/bin/git.exe")
+      (add-to-list exec-path '"C:/Program Files (x86)/Git/bin")
       (setenv "PATH" (concat "C:\\Program Files (x86)\\Git\\bin;" (getenv "PATH")))))
 ;; disable vc-git dues to slowness
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
@@ -803,6 +839,10 @@ vi style of % jumping to matching brace."
 
 (setq dired-details-hidden-string "")
 
+;; ignore .meta files with dired+
+(setq-default dired-omit-files-p t) ;; this is buffer-local
+(setq dired-omit-files (concat dired-omit-files "\\|\\.meta$"))
+
 
 
 
@@ -840,4 +880,24 @@ vi style of % jumping to matching brace."
 ;; popwin-mode
 (popwin-mode 1)
 
+;; session
+(add-hook 'after-init-hook 'session-initialize)
 
+;; workgroups
+(setq wg-morph-on nil)
+(setq wg-default-session-file "~/.emacs.d/.emacs_workgroups")
+(setq wg-prefix-key (kbd "C-z")) ;; TODO move to keybindings up top? 
+(workgroups-mode 1)
+
+;; nav mode
+(nav-disable-overeager-window-splitting)
+
+;; applescript mode 
+(add-to-list 'auto-mode-alist '("\\.\\(applescri\\|sc\\)pt\\'" . apples-mode))
+
+;; pianobar (command line player for Pandora)
+(add-to-list 'exec-path "/usr/local/bin")
+(autoload 'pianobar "pianobar" nil t)
+
+;; 
+(add-to-list 'auto-mode-alist '("\\.emacs.home" . emacs-lisp-mode))
