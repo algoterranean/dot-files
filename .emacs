@@ -13,6 +13,7 @@
       ((file-exists-p home-emacs-file)
        (load-file home-emacs-file)))
 
+
 (require 'cl)
 (require 'package)
 (setq package-archives
@@ -59,19 +60,22 @@
 			  js2-mode
 			  magit
 			  markdown-mode
-			  mark-multiple
+			  multiple-cursors
+			  ;; mark-multiple
 			  nav
+			  omnisharp
 			  pianobar
 			  powerline
 			  popwin
 			  python-mode
 			  rainbow-mode
 			  scratch-persist
-			  session
+			  ;; session
 			  server
 			  weblogger
 			  workgroups2   ;; origional workgroups.el is buggy
 			  yasnippet))
+
 
 (defvar my-require-list '(ace-jump-mode
 			  adaptive-wrap
@@ -82,12 +86,15 @@
 			  display-theme
 			  dired+
 			  dired-details+
+			  helm
+			  helm-files
 			  magit
+			  multiple-cursors
 			  nav
 			  org
 			  powerline
 			  popwin
-			  session
+			  ;; session
 			  workgroups2
 			  ;; spaces
 			  scratch-persist
@@ -316,11 +323,14 @@
     ;; ace-jump 
     ("\C-c " ace-jump-mode) ;; C-c SPC
     ;; helm
-    ("\C-cf" helm-find-files)
-    ("\C-cg" helm-chrome-bookmarks)
+    ("\C-cf" helm-for-files)
+    ;; ("\C-x\C-f" helm-for-files)
+    ("\C-cg" helm-bookmark-helper)
     ("\C-cb" helm-buffers-list)
     ("\C-cl" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
     ("\C-cs" helm-swoop) 
+    ("\C-ch" helm-mini)
+    ("\C-co" helm-org-headlines)
     ;; irc
     ("\C-ci" start-my-erc)
     ;; TODO add command to toggle erc-nicklist
@@ -361,7 +371,8 @@
     ;; select all
     ("\C-c\C-a" mark-whole-buffer)
     ;; rotate through my color theme list   
-    ("\C-ct" rotate-through-themes)
+    ;; ("\C-ct" rotate-through-themes)
+    ("\C-ct" helm-themes)
     ;; unity logs
     ([f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Editor.log")))
     ([C-f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Player.log")))
@@ -645,6 +656,8 @@ vi style of % jumping to matching brace."
 	     )))
 
 
+
+
 ;;======================
 ;; WIN-SPECIFIC
 ;;======================
@@ -691,14 +704,14 @@ vi style of % jumping to matching brace."
 	     ;; (local-set-key "\C-u" 'eshell-kill-input))
 	     ))
 
-(setq eshell-path-env "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
+;;(setq eshell-path-env "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
 
 ;; helm pcomplete mode
-(add-hook 'eshell-mode-hook
-          #'(lambda ()
-              (define-key eshell-mode-map
-                [remap eshell-pcomplete]
-                'helm-esh-pcomplete)))
+;; (add-hook 'eshell-mode-hook
+;;           #'(lambda ()
+;;               (define-key eshell-mode-map
+;;                 [remap eshell-pcomplete]
+;;                 'helm-esh-pcomplete)))
 
 ;; enable history in helm
 (add-hook 'eshell-mode-hook
@@ -742,6 +755,7 @@ vi style of % jumping to matching brace."
 			   ("boo" . boo)))
 
 
+
 ;; nxml-mode
 (setq auto-mode-alist (cons '("\.xaml$" . nxml-mode) auto-mode-alist))
 ;; (define-key nxml-mode-map (kbd "\C-c \C-e") 'weblogger-toggle-edit-body)
@@ -763,7 +777,7 @@ vi style of % jumping to matching brace."
 
 
 
-;; powershell-mode
+;; powershell-moded
 (add-to-list 'auto-mode-alist '("\\.ps1\\'" . powershell-mode)) ;; mode for editing powershell scripts
 
 
@@ -771,12 +785,15 @@ vi style of % jumping to matching brace."
 (add-hook 'magit-mode-hook
 	  (lambda ()
 	    (define-key magit-mode-map [f9] 'delete-window)
+	    (define-key magit-mode-map [C-return] 'other-window)
 	    ))
+
 (if (eq system-type 'windows-nt)
     (progn
-      (setq magit-git-executable "C:/Program Files (x86)/Git/bin/git.exe")
-      (add-to-list exec-path '"C:/Program Files (x86)/Git/bin")
+      (setq magit-git-executable "C:\\Program Files (x86)\\Git\\bin\\git.exe")
+      (add-to-list 'exec-path "C:\\Program Files (x86)\\Git\\bin")
       (setenv "PATH" (concat "C:\\Program Files (x86)\\Git\\bin;" (getenv "PATH")))))
+
 ;; disable vc-git dues to slowness
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
 (setq vc-handled-backends nil)
@@ -881,13 +898,31 @@ vi style of % jumping to matching brace."
 (popwin-mode 1)
 
 ;; session
-(add-hook 'after-init-hook 'session-initialize)
+;; (add-hook 'after-init-hook 'session-initialize)
 
 ;; workgroups
 (setq wg-morph-on nil)
 (setq wg-default-session-file "~/.emacs.d/.emacs_workgroups")
 (setq wg-prefix-key (kbd "C-z")) ;; TODO move to keybindings up top? 
+(setq wg-emacs-exit-save-behaviour 'ask)
+(setq wg-workgroups-mode-exit-save-behavior 'ask)
+
 (workgroups-mode 1)
+
+;; TODO add support to workgroups2 for handling multiple sessions
+;; ask if we want to save the workgroup session first. bind this to C-x C-c
+(defun revert-workgroups-first ()
+  (interactive)
+  (progn 
+    (wg-revert-all-workgroups)
+    (save-buffers-kill-terminal)))
+
+;; (add-hook 'kill-emacs-hook
+;; 	  (lambda ()
+;; 	    (if (not (yes-or-no-p "Save current workgroup session?"))
+;; 		(wg-revert-all-workgroups))))
+
+
 
 ;; nav mode
 (nav-disable-overeager-window-splitting)
@@ -901,3 +936,21 @@ vi style of % jumping to matching brace."
 
 ;; 
 (add-to-list 'auto-mode-alist '("\\.emacs.home" . emacs-lisp-mode))
+(add-to-list 'auto-mode-alist '("\\.emacs.work" . emacs-lisp-mode))
+
+;; eshell
+(setq eshell-path-env (getenv "PATH"))
+
+;; helm
+(setq helm-idle-delay 0.1)
+(setq helm-input-idle-delay 0.1)
+;; (setq helm-locate-command "locate-with-mdfind %.0s %s") ;; osx
+(loop for ext in '("\\.swf$" "\\.elc$" "\\.pyc$" "\\.meta$")
+      do (add-to-list 'helm-boring-file-regexp-list ext))
+
+(defun helm-bookmark-helper ()
+  (interactive)
+  (if (eq at-work t)
+      (helm-firefox-bookmarks)
+    (helm-chrome-bookmarks)))
+
