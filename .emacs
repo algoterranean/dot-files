@@ -1,4 +1,3 @@
-
 ;;======================
 ;; SETUP
 ;;======================
@@ -323,14 +322,19 @@
     ;; ace-jump 
     ("\C-c " ace-jump-mode) ;; C-c SPC
     ;; helm
-    ("\C-cf" helm-for-files)
-    ;; ("\C-x\C-f" helm-for-files)
-    ("\C-cg" helm-bookmark-helper)
-    ("\C-cb" helm-buffers-list)
-    ("\C-cl" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
-    ("\C-cs" helm-swoop) 
-    ("\C-ch" helm-mini)
-    ("\C-co" helm-org-headlines)
+    ("\C-c\C-h\C-f" helm-for-files)
+    ("\C-c\C-h\C-k" helm-bookmark-helper)
+    ("\C-c\C-h\C-b" helm-buffers-list)
+    ("\C-c\C-h\C-l" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
+    ("\C-c\C-h\C-s" helm-swoop) 
+    ("\C-c\C-h\C-h" helm-mini)
+    ("\C-c\C-h\C-o" helm-org-headlines)
+    ;; helm-help
+    ;; helm-keybindings
+    ;; helm-websearch
+    ;; helm-yank-kill
+    ;; helm-
+    ("\C-x\C-c" revert-workgroups-first)
     ;; irc
     ("\C-ci" start-my-erc)
     ;; TODO add command to toggle erc-nicklist
@@ -353,7 +357,7 @@
     ;; join line shortcut
     ("\C-j" join-line)
     ;; google-code nav mode (like "directory" view in IDEs)
-    ([f8] nav-toggle)
+    ([f8] toggle-nav-or-nicklist)
     ;; magit toggle
     ([f9] magit-status)
     ;; alternative way to use Meta-X (with C thrown for fat-fingering)
@@ -944,7 +948,8 @@ vi style of % jumping to matching brace."
 ;; helm
 (setq helm-idle-delay 0.1)
 (setq helm-input-idle-delay 0.1)
-;; (setq helm-locate-command "locate-with-mdfind %.0s %s") ;; osx
+(if (eq system-type 'darwin)
+    (setq helm-locate-command "mdfind -name %.0s %s")) ;; osx only
 (loop for ext in '("\\.swf$" "\\.elc$" "\\.pyc$" "\\.meta$")
       do (add-to-list 'helm-boring-file-regexp-list ext))
 
@@ -953,4 +958,12 @@ vi style of % jumping to matching brace."
   (if (eq at-work t)
       (helm-firefox-bookmarks)
     (helm-chrome-bookmarks)))
+
+
+;; 
+(defun toggle-nav-or-nicklist ()
+  (interactive)
+  (if (string= (message "%s" major-mode) "erc-mode")
+      (erc-nicklist)
+    (nav-toggle)))
 
