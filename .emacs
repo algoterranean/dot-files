@@ -1,3 +1,23 @@
+;; zenburn
+;; ample-zen
+;; afternoon
+;; dakrone
+;; deep-thought
+;; espresso
+;; flatland
+;; gruvbox
+;; heroku
+;; leuven
+;; nifelheim
+;; purple-haze
+;; solarized-light
+;; subatomic
+;; subatomic256
+;; tronesque
+;; underwater
+;; misterioso
+
+
 ;;======================
 ;; SETUP
 ;;======================
@@ -55,7 +75,7 @@
 			  hide-comnt ;; locks up emacs?
 			  htmlfontify
 			  htmlize
-			  itail 
+			  itail
 			  js2-mode
 			  magit
 			  markdown-mode
@@ -69,6 +89,7 @@
 			  python-mode
 			  rainbow-mode
 			  scratch-persist
+			  slime
 			  ;; session
 			  server
 			  weblogger
@@ -78,6 +99,7 @@
 
 (defvar my-require-list '(ace-jump-mode
 			  adaptive-wrap
+			  algo-mode
 			  apples-mode
 			  buffer-stack
 			  edmacro
@@ -87,19 +109,21 @@
 			  dired-details+
 			  helm
 			  helm-files
+			  flycheck
 			  magit
 			  multiple-cursors
 			  nav
 			  org
 			  powerline
-			  popwin
+			  ;; popwin
+
 			  ;; session
 			  workgroups2
 			  ;; spaces
 			  scratch-persist
 			  vc
 			  ;; non-packages
-			  boo-mode
+			  ;; boo-mode
 			  cg-mode
 			  ;; nxhtml-mumamo-mode
 			  ))
@@ -169,6 +193,8 @@
 			zenburn-theme))
 
 
+
+
 (defun my-packages-installed-p ()
   (loop for p in (append my-package-list my-theme-list)
 	when (not (package-installed-p p)) do (return nil)
@@ -227,7 +253,7 @@
       c-default-style "linux" c-basic-offset 4) ;; set the default indentation style for c-mode
 
 ;; powerline
-(set-face-attribute 
+(set-face-attribute
  'mode-line nil
  :foreground "#030303"
  :box nil)
@@ -267,7 +293,8 @@
 ;; misc
 (put 'overwrite-mode 'disabled t)
 (if (load "mwheel" t) (mwheel-install))
-(add-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt) ;; don't echo passwords
+(add-hook 'comint-output-filter-functions
+	  'comint-watch-for-password-prompt) ;; don't echo passwords
 (when window-system
   (global-unset-key "\C-z")) ; iconify-or-deiconify-frame (C-x C-z)
 (put 'narrow-to-region 'disabled nil)
@@ -289,7 +316,8 @@
 (setq auto-compression-mode t) ;; transparently open compressed files
 
 ;; don't show these buffers when trying to switch
-(setq buffer-stack-untracked '("*Help*" "*Completions*" "*scratch*" "*Messages*" "*Backtrace*" "*Warnings*"))
+(setq buffer-stack-untracked '("*Help*" "*Completions*" "*scratch*"
+			       "*Messages*" "*Backtrace*" "*Warnings*"))
 
 ;; (nav-disable-overeager-window-splitting) ;; nav
 
@@ -302,7 +330,7 @@
 
 ;; TODO: create function to pick one of these keybindings at random and quiz
 ;; user about what it does or what the keybinding is for that functions
-(defvar my-global-keybindings 
+(defvar my-global-keybindings
   '(
     ;; useful buffer commands
     ("\C-xB" bury-buffer)
@@ -319,16 +347,18 @@
     ;; comment/uncomment
     ("\C-cc" comment-region)
     ("\C-cu" uncomment-region)
-    ;; ace-jump 
+    ;; ace-jump
     ("\C-c " ace-jump-mode) ;; C-c SPC
     ;; helm
     ("\C-c\C-h\C-f" helm-for-files)
     ("\C-c\C-h\C-k" helm-bookmark-helper)
     ("\C-c\C-h\C-b" helm-buffers-list)
     ("\C-c\C-h\C-l" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
-    ("\C-c\C-h\C-s" helm-swoop) 
+    ("\C-c\C-h\C-s" helm-swoop)
     ("\C-c\C-h\C-h" helm-mini)
     ("\C-c\C-h\C-o" helm-org-headlines)
+    ("\C-c\C-h\C-t" helm-themes)
+    ("\C-c\C-h\C-y" helm-flycheck)
     ;; helm-help
     ;; helm-keybindings
     ;; helm-websearch
@@ -374,12 +404,14 @@
     ("\M-Y" yank-pop-forwards) ; M-Y (Meta-Shift-Y)
     ;; select all
     ("\C-c\C-a" mark-whole-buffer)
-    ;; rotate through my color theme list   
+    ;; rotate through my color theme list
     ;; ("\C-ct" rotate-through-themes)
-    ("\C-ct" helm-themes)
+
     ;; unity logs
-    ([f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Editor.log")))
-    ([C-f5] (lambda () (interactive) (watch-log-file "~/Library/Logs/Unity/Player.log")))
+    ([f5] (lambda () (interactive) (watch-log-file
+				    "~/Library/Logs/Unity/Editor.log")))
+    ([C-f5] (lambda () (interactive) (watch-log-file
+				      "~/Library/Logs/Unity/Player.log")))
     ;; unity/algoterranean interpreter
     ([C-f11] (lambda () (interactive) (watch-log-file unity-interpreter-log)))
 
@@ -402,7 +434,7 @@
     ;; C-u C-x =  (
     ;; C-c x is reserved for users (where x is a letter)
     ;; C-c followed by a control character is reserved for major modes
-    ;; 
+    ;;
     ))
 
 ;; ;; better buffer movement
@@ -414,7 +446,8 @@
 (global-unset-key [f11])
 
 ;; set all global keybindings
-(mapcar (lambda (x) (global-set-key (car x) (car (cdr x)))) my-global-keybindings)
+(mapcar (lambda (x) (global-set-key (car x) (car (cdr x))))
+	my-global-keybindings)
 
 
 
@@ -506,9 +539,11 @@
 
 ;; Mostly from http://ruslanspivak.com/2007/08/18/htmlize-your-erlang-code-buffer/
 ;; The output of this can be copied in its entirety and pasted directly
-;; to a blog post, for example. 
+;; to a blog post, for example.
 (defun my-htmlize-region (beg end)
-  "Htmlize region and put into <pre> tag style that is left in <body> tag, change the font-size to 10pt, and copy the results to the clipboard (kill ring)."
+  "Htmlize region and put into <pre> tag style that is left in <body>
+tag, change the font-size to 10pt, and copy the results to the
+clipboard (kill ring)."
   (interactive "r")
   (let* ((buffer-faces (htmlize-faces-in-buffer))
          (face-map (htmlize-make-face-map (adjoin 'default buffer-faces)))
@@ -544,16 +579,15 @@ end tell
 set x to count of _desktops
 ")))
 
-;; (global-set-key [f11] 
-;; 		(lambda () 
-;; 		  (interactive) 
-;; 		  (toggle-frame-fullscreen)
-;; 		  (if (> (get-number-of-monitors) 1)
-;; 		      (progn
-;; 			(modify-frame-parameters (make-frame) '((top + 10) (left + 1920) (width . 144) (height . 80) (vertical-scroll-bars . nil)))
-;; 			(modify-frame-parameters (make-frame) '((top + -210) (left + -1051) (width . 148) (height . 105) (vertical-scroll-bars . nil))))
-;; 		    )))
-
+;; (global-set-key [f11]
+;; (lambda ()
+;;  (interactive)
+;;  (toggle-frame-fullscreen)
+;;  (if (> (get-number-of-monitors) 1)
+;;      (progn
+;; (modify-frame-parameters (make-frame) '((top + 10) (left + 1920) (width . 144) (height . 80) (vertical-scroll-bars . nil)))
+;; (modify-frame-parameters (make-frame) '((top + -210) (left + -1051) (width . 148) (height . 105) (vertical-scroll-bars . nil))))
+;;    )))
 
 
 
@@ -561,7 +595,7 @@ set x to count of _desktops
   (interactive)
   (setq my-theme-list-pos (% (+ 1 my-theme-list-pos) (length my-theme-list)))
   (let ((next-theme (car (read-from-string
-			  (car (split-string (symbol-name (nth (% (+ 1 my-theme-list-pos) 
+			  (car (split-string (symbol-name (nth (% (+ 1 my-theme-list-pos)
 								  (length my-theme-list)) my-theme-list)) "-theme"))))))
     (progn
       (disable-theme my-current-theme)
@@ -583,39 +617,45 @@ set x to count of _desktops
 (defconst animate-n-steps 3)
 (defun emacs-reloaded ()
   (animate-string (concat ";; Initialization successful, welcome to "
-  			  (substring (emacs-version) 0 16)
+			  (substring (emacs-version) 0 16)
 			  ".")
 		  0 0)
   (newline-and-indent)  (newline-and-indent))
-;; (add-hook 'after-init-hook 'emacs-reloaded)  
+;; (add-hook 'after-init-hook 'emacs-reloaded)
 
 
 (defun search-proj-recursively ()
   (interactive)
-  (rgrep (read-from-minibuffer "grep: ") 
-	 (read-from-minibuffer "filter: " "*.boo") 
-	 (read-from-minibuffer "dir: " (file-name-directory (or load-file-name buffer-file-name)))
+  (rgrep (read-from-minibuffer "grep: ")
+	 (read-from-minibuffer "filter: " "*.boo")
+	 (read-from-minibuffer "dir: " (file-name-directory (or load-file-name
+								buffer-file-name)))
 	 ))
 
 (defun search-proj-directory ()
   (interactive)
-  (grep (concat "grep -nH -e " 
-		(read-from-minibuffer "grep: ") 
-		" " 
-		(read-from-minibuffer "dir: " (file-name-directory (or load-file-name buffer-file-name)))
+  (grep (concat "grep -nH -e "
+		(read-from-minibuffer "grep: ")
+		" "
+		(read-from-minibuffer "dir: " (file-name-directory (or load-file-name
+								       buffer-file-name)))
 		(read-from-minibuffer "filter: " "*.boo")
 		)))
 
 (defun goto-match-paren (arg)
-  "Go to the matching parenthesis if on parenthesis AND last command is a movement command, otherwise insert %.
+  "Go to the matching parenthesis if on parenthesis AND last command
+is a movement command, otherwise insert %.
 vi style of % jumping to matching brace."
   (interactive "p")
   (message "%s" last-command)
-  (if (not (memq last-command '(set-mark cua-set-mark goto-match-paren down-list up-list end-of-defun
+  (if (not (memq last-command '(set-mark cua-set-mark goto-match-paren
+					 down-list up-list end-of-defun
 					 beginning-of-defun backward-sexp forward-sexp backward-up-list forward-paragraph
 					 backward-paragraph end-of-buffer beginning-of-buffer backward-word forward-word
-					 mwheel-scroll backward-word forward-word mouse-start-secondary mouse-yank-secondary
-					 mouse-secondary-save-then-kill move-end-of-line move-beginning-of-line backward-char
+					 mwheel-scroll backward-word forward-word mouse-start-secondary
+					 mouse-yank-secondary
+					 mouse-secondary-save-then-kill move-end-of-line move-beginning-of-line
+					 backward-char
 					 forward-char scroll-up scroll-down scroll-left scroll-right
 					 mouse-set-point next-buffer previous-buffer next-line previous-line)))
       (self-insert-command (or arg 1))
@@ -643,9 +683,10 @@ vi style of % jumping to matching brace."
   "compile itself if ~/.emacs"
   (interactive)
   (require 'bytecomp)
-  (if (string= (buffer-file-name) (expand-file-name (concat default-directory ".emacs")))
+  (if (string= (buffer-file-name) (expand-file-name (concat
+						     default-directory ".emacs")))
       (byte-compile-file (buffer-file-name))))
-;; (add-hook 'after-save-hook 'autocompile) ;; disable for now... random end of file problems... 
+;; (add-hook 'after-save-hook 'autocompile) ;; disable for now... random end of file problems...
 
 
 
@@ -653,7 +694,8 @@ vi style of % jumping to matching brace."
 ;; OSX-SPECIFIC
 ;;======================
 (cond ((eq system-type 'darwin)
-       (set-frame-font "Consolas for Powerline FixedD-12")
+       ;; (set-frame-font "Consolas for Powerline FixedD-12")
+       (set-frame-font "Source Code Pro-12")
        (setq mac-option-modifier 'super
 	     mac-command-modifier 'meta
 	     ns-use-native-fullscreen nil    ;; so nice
@@ -667,7 +709,8 @@ vi style of % jumping to matching brace."
 ;;======================
 (cond ((eq system-type 'windows-nt)
        (setenv "GS_LIB" "c:/gs/gs8.15/lib;c:/gs/fonts")
-       (set-frame-font "Consolas for Powerline FixedD-10")
+       ;; (set-frame-font "Consolas for Powerline FixedD-10")
+       (set-frame-font "Source Code Pro-9")
        (add-to-list 'exec-path "c:\\Program Files (x86)\\Mozilla Firefox/")
        (setq ps-lpr-command "c:/gs/gs8.15/bin/gswin32c.exe"
 	     ps-lpr-switches '("-q" "-dNOPAUSE" "-dBATCH" "-sDEVICE=mswinpr2")
@@ -678,16 +721,16 @@ vi style of % jumping to matching brace."
 ;; (add-to-list 'load-path "~/.emacs.d/")
 ;; (let ((default-directory "~/.emacs.d/"))
 ;;   (setq load-path
-;; 	(append
-;; 	 (let ((load-path (copy-sequence load-path)))
-;; 	   (normal-top-level-add-subdirs-to-load-path))
-;; 	 load-path)))
+;; (append
+;; (let ((load-path (copy-sequence load-path)))
+;;   (normal-top-level-add-subdirs-to-load-path))
+;; load-path)))
 ;; (let ((default-directory "~/bin/emacs-24.2/"))
 ;;   (setq load-path
-;; 	(append
-;; 	 (let ((load-path (copy-sequence load-path)))
-;; 	   (normal-top-level-add-subdirs-to-load-path))
-;; 	 load-path)))
+;; (append
+;; (let ((load-path (copy-sequence load-path)))
+;;   (normal-top-level-add-subdirs-to-load-path))
+;; load-path)))
 
 
 ;;======================
@@ -697,8 +740,10 @@ vi style of % jumping to matching brace."
 ;; eshell
 (add-hook 'eshell-mode-hook
 	  '(lambda nil
-	     (eshell/export "DYLD_FALLBACK_LIBRARY_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib:$DYLD_FALLBACK_LIBRARY_PATH:/usr/lib")
-	     (setq eshell-path-env "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
+	     (eshell/export
+	      "DYLD_FALLBACK_LIBRARY_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib:$DYLD_FALLBACK_LIBRARY_PATH:/usr/lib")
+	     (setq eshell-path-env
+		   "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
 
 	     ;; (eshell/export "EPOCROOT=\\Paragon\\")
 	     ;; (let ((path))
@@ -768,7 +813,7 @@ vi style of % jumping to matching brace."
 ;; iswitchb-mode
 ;; use arrow keys to navigate iswitchb minibuffer
 (defun iswitchb-local-keys ()
-  (mapc (lambda (K) 
+  (mapc (lambda (K)
 	  (let* ((key (car K)) (fun (cdr K)))
 	    (define-key iswitchb-mode-map (edmacro-parse-keys key) fun)))
 	'(("<right>" . iswitchb-next-match)
@@ -796,7 +841,8 @@ vi style of % jumping to matching brace."
     (progn
       (setq magit-git-executable "C:\\Program Files (x86)\\Git\\bin\\git.exe")
       (add-to-list 'exec-path "C:\\Program Files (x86)\\Git\\bin")
-      (setenv "PATH" (concat "C:\\Program Files (x86)\\Git\\bin;" (getenv "PATH")))))
+      (setenv "PATH" (concat "C:\\Program Files (x86)\\Git\\bin;"
+			     (getenv "PATH")))))
 
 ;; disable vc-git dues to slowness
 (remove-hook 'find-file-hooks 'vc-find-file-hook)
@@ -806,7 +852,7 @@ vi style of % jumping to matching brace."
 
 ;; csharp-mode
 (setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-(add-hook 'csharp-mode-hook 
+(add-hook 'csharp-mode-hook
 	  (lambda ()
 	    (c-set-style "linux")
 	    ;; (c-set-offset substatement-open 0)
@@ -862,9 +908,8 @@ vi style of % jumping to matching brace."
 
 ;; ignore .meta files with dired+
 (setq-default dired-omit-files-p t) ;; this is buffer-local
-(setq dired-omit-files (concat dired-omit-files "\\|\\.meta$"))
-
-
+(setq dired-omit-files "\\.meta$")
+;; (setq dired-omit-files (concat dired-omit-files "\\|\\.meta$"))
 
 
 ;; python-mode
@@ -889,17 +934,20 @@ vi style of % jumping to matching brace."
 ;; (add-to-list 'auto-mode-alist '("\\.html$" . nxhtml-mumamo-mode))
 
 ;; boo mode
-(setq boo-custom-macros '("client" "server" "standalone" "not_server" "not_client" "not_standalone"))
+(setq boo-custom-macros '("client" "server" "standalone" "not_server"
+			  "not_client" "not_standalone"))
 (add-to-list 'auto-mode-alist '("\\.boo$" . boo-mode))
 (add-to-list 'auto-mode-alist '("\\.boo.macro$" . boo-mode))
-(add-to-list 'auto-mode-alist '(".algo$" . boo-mode))
+
+
+(require 'boo-mode)
 
 ;; weblogger
 ;; (weblogger-select-configuration)
 
 
 ;; popwin-mode
-(popwin-mode 1)
+;; (popwin-mode 1)
 
 ;; session
 ;; (add-hook 'after-init-hook 'session-initialize)
@@ -907,7 +955,7 @@ vi style of % jumping to matching brace."
 ;; workgroups
 (setq wg-morph-on nil)
 (setq wg-default-session-file "~/.emacs.d/.emacs_workgroups")
-(setq wg-prefix-key (kbd "C-z")) ;; TODO move to keybindings up top? 
+(setq wg-prefix-key (kbd "C-z")) ;; TODO move to keybindings up top?
 (setq wg-emacs-exit-save-behaviour 'ask)
 (setq wg-workgroups-mode-exit-save-behavior 'ask)
 
@@ -917,33 +965,34 @@ vi style of % jumping to matching brace."
 ;; ask if we want to save the workgroup session first. bind this to C-x C-c
 (defun revert-workgroups-first ()
   (interactive)
-  (progn 
+  (progn
     (wg-revert-all-workgroups)
     (save-buffers-kill-terminal)))
 
 ;; (add-hook 'kill-emacs-hook
-;; 	  (lambda ()
-;; 	    (if (not (yes-or-no-p "Save current workgroup session?"))
-;; 		(wg-revert-all-workgroups))))
+;;  (lambda ()
+;;    (if (not (yes-or-no-p "Save current workgroup session?"))
+;; (wg-revert-all-workgroups))))
 
 
 
 ;; nav mode
 (nav-disable-overeager-window-splitting)
 
-;; applescript mode 
+;; applescript mode
 (add-to-list 'auto-mode-alist '("\\.\\(applescri\\|sc\\)pt\\'" . apples-mode))
 
 ;; pianobar (command line player for Pandora)
 (add-to-list 'exec-path "/usr/local/bin")
 (autoload 'pianobar "pianobar" nil t)
 
-;; 
+;;
 (add-to-list 'auto-mode-alist '("\\.emacs.home" . emacs-lisp-mode))
 (add-to-list 'auto-mode-alist '("\\.emacs.work" . emacs-lisp-mode))
 
 ;; eshell
 (setq eshell-path-env (getenv "PATH"))
+
 
 ;; helm
 (setq helm-idle-delay 0.1)
@@ -960,10 +1009,148 @@ vi style of % jumping to matching brace."
     (helm-chrome-bookmarks)))
 
 
-;; 
+;;
 (defun toggle-nav-or-nicklist ()
   (interactive)
   (if (string= (message "%s" major-mode) "erc-mode")
       (erc-nicklist)
     (nav-toggle)))
 
+
+;; flycheck
+;; (add-hook 'after-init-hook 'global-flycheck-mode)
+;; (load-file "~/.emacs.d/unity-csharp.el")
+
+;; from https://github.com/cantsin/dotemacs/blob/master/setup-unity.el
+(defun unity-find-project-sln-from-dir (dir-path)
+  "Walks up the tree from DIR-PATH, trying to find an sln.
+If it finds one, returns it, else nil."
+  (if (and (file-exists-p dir-path) (not (string= dir-path "/")))
+      (let* (
+	     (dir-name (file-name-base (directory-file-name dir-path)))
+	     (sln-path (concat (file-name-as-directory dir-path)
+			       (concat dir-name ".sln"))))
+        (if (file-exists-p sln-path)
+            sln-path
+          (unity-find-project-sln-from-dir (expand-file-name (concat
+							      dir-path "/.."))) ;; keep going down stack
+          ))
+    nil))
+
+(defun unity-find-project-dir-from-file (project-file)
+  (file-name-directory (unity-find-project-sln-from-dir
+                        (file-name-directory buffer-file-name))))
+
+(defun buffer-has-unity-sln-parent ()
+  "Find the sln file that defines this project."
+  (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))
+
+(defun restore-root-if-necessary (project-root err)
+  (let* (
+         (error-filename (flycheck-error-filename err))
+         (is-rooted (string-match (concat "^" project-root ".*")
+				  error-filename)))
+    (if (not is-rooted)
+        (flycheck-error-new
+         :filename (concat project-root error-filename)
+         :line (flycheck-error-line err)
+         :column (flycheck-error-column err)
+         :message (flycheck-error-message err)
+         :level (flycheck-error-level err))
+      err)))
+
+(defun parse-patterns-and-restore-path (output checker _buffer)
+  "the file names listed in the error output from unity doesn't include
+the project root. flycheck can't find the files if it's not an absolute path."
+  (let* (
+         (trimmed-output
+          (mapconcat 'identity
+                     (-map
+                      (lambda (line) (substring line 0 (min (length
+							     line) 1000)))
+                      (split-string output "\n"))
+                     "\n"))
+         (raw-parse-results (flycheck-parse-with-patterns
+			     trimmed-output checker _buffer))
+         (project-root (unity-find-project-dir-from-file buffer-file-name)))
+    (-map
+     (lambda (err) (restore-root-if-necessary project-root err))
+     raw-parse-results)))
+
+
+(flycheck-define-checker unity-csharp-unity-flychecker
+  "given a c-sharp file, looks for the unity file and then tries to
+build it using mdtool."
+  :command ("/Applications/Unity/Unity.app/Contents/MacOS/Unity"
+	    "-batchmode"
+	    "-logFile"
+	    "-quit"
+	    "-projectPath"
+	    (eval (unity-find-project-dir-from-file
+		   (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))))
+
+  :error-patterns
+  ;; Assets/Plugins/LibNoise/Libnoise.cs(43,22): error CS1519: Unexpected symbol `public' in class, struct, or interface member declaration
+  ((error line-start (file-name) "(" line "," column "): error "
+	  (message) line-end)
+   ;; Assets/Third Party/kolmich/KGFMapSystem/scripts/KGFMapSystem.cs(39,38): warning CS0618: `UnityEngine.GameObject.active' is obsolete: `GameObject.active is obsolete. Use GameObject.SetActive(),GameObject.activeSelf or GameObject.activeInHierarchy.'
+   (warning line-start (file-name) "(" line "," column "): warning "
+	    (message) line-end)
+   ;; Assets/Algoterranean/Managers/NetworkManager.boo(125,13): BCE0005: Unknown identifier: 'x'.
+   (error line-start (file-name) "(" line "," column "): BCE"
+	  (message) line-end)
+   ;; Assets/Algoterranean/Misc/Interpreter/Interpreter.boo(56,9): BCW0003: WARNING: Unused local variable 'x'.
+   (warning line-start (file-name) "(" line "," column "): BCW"
+	    (message) line-end))
+
+
+
+  ;; (warning line-start
+  ;;          (file-name (1+ (in ":" "/" alnum)) ".cs")
+  ;;          "(" line "," column ")"
+  ;;          ": warning "
+  ;;          (message (0+ any))
+  ;;          line-end))
+  :modes (csharp-mode boo-mode)
+  :error-parser parse-patterns-and-restore-path
+  ;; checker only valid if we can find an sln
+  :predicate (lambda () (buffer-has-unity-sln-parent)))
+
+
+;; (flycheck-define-checker unity-csharp-mdtool-flychecker
+;;   "given a c-sharp file, looks for the unity file and then tries to
+;; build it using mdtool."
+;;   :command ("/Applications/Unity/MonoDevelop.app/Contents/Frameworks/Mono.framework/Commands/mono"
+;;    "/Applications/Unity/MonoDevelop.app/Contents/MacOS/lib/monodevelop/bin/mdtool.exe"
+;;    "-v"
+;;    ;; "C:/Program Files (x86)/Xamarin Studio/bin/mdtool.exe"
+;;             "build"
+;;             ;; (eval (forward-slashes-to-backslashes
+;;             ;;        (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))))
+;;    (eval (unity-find-project-sln-from-dir (file-name-directory buffer-file-name))))
+;;   :error-patterns
+;;   ((error   line-start
+;;             (file-name (1+ (in ":" "\\" alnum)) ".cs")
+;;             "(" line "," column ")"
+;;             " : error "
+;;             (message (0+ any))
+;;             line-end)
+;;    (warning line-start
+;;             (file-name (1+ (in ":" "\\" alnum)) ".cs")
+;;             "(" line "," column ")"
+;;             " : warning "
+;;             (message (0+ any))
+;;             line-end))
+;;   :modes csharp-mode
+;;   ;; checker only valid if we can find an sln
+;;   :predicate (lambda () (buffer-has-unity-sln-parent)))
+;;(add-to-list 'flycheck-checkers 'unity-csharp-mdtool-flychecker 'append)
+(add-to-list 'flycheck-checkers 'unity-csharp-unity-flychecker 'append)
+
+;; (add-to-list 'auto-mode-alist '(".algo.boo$" . boo-mode))
+;; (add-to-list 'auto-mode-alist '(".algo.py$" . python-mode))
+;; (add-to-list 'auto-mode-alist '(".algo.scheme$" . scheme-mode))
+
+;; SWANK:*COMMUNICATION-STYLE*
+
+;; (slime-connect "127.0.0.1" "13000"
