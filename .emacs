@@ -353,12 +353,17 @@
     ("\C-c\C-h\C-f" helm-for-files)
     ("\C-c\C-h\C-k" helm-bookmark-helper)
     ("\C-c\C-h\C-b" helm-buffers-list)
-    ("\C-c\C-h\C-l" helm-ls-git-ls) ;; TODO customize this so that it ignores .meta files
+    ;;("\C-c\C-h\C-g" helm-ls-git) ;; TODO customize this so that it ignores .meta files
     ("\C-c\C-h\C-s" helm-swoop)
     ("\C-c\C-h\C-h" helm-mini)
     ("\C-c\C-h\C-o" helm-org-headlines)
     ("\C-c\C-h\C-t" helm-themes)
     ("\C-c\C-h\C-y" helm-flycheck)
+    ("\M-x" helm-M-x)
+    ("\C-c\C-h\C-g" helm-do-grep)
+    ("\C-f9" helm-ls-git)
+    ;; ("\C-xb" helm-buffers-list)
+    ("\C-c\C-h\C-r" helm-regexp)
     ;; helm-help
     ;; helm-keybindings
     ;; helm-websearch
@@ -1154,3 +1159,7 @@ build it using mdtool."
 ;; SWANK:*COMMUNICATION-STYLE*
 
 ;; (slime-connect "127.0.0.1" "13000"
+
+;; mono stuff
+(setq auto-mode-alist (cons '("\.exe.config$" . nxml-mode) auto-mode-alist))
+(setq tags-file-name ".tags")
