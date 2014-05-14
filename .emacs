@@ -64,6 +64,7 @@
 			  helm
 			  helm-chrome
 			  helm-c-yasnippet
+			  helm-dash
 			  helm-flycheck
 			  helm-ls-git
 			  helm-google
@@ -97,6 +98,7 @@
 			  yasnippet))
 
 
+
 (defvar my-require-list '(ace-jump-mode
 			  adaptive-wrap
 			  algo-mode
@@ -109,6 +111,7 @@
 			  dired-details+
 			  helm
 			  helm-files
+			  helm-ring
 			  flycheck
 			  magit
 			  multiple-cursors
@@ -123,7 +126,7 @@
 			  scratch-persist
 			  vc
 			  ;; non-packages
-			  ;; boo-mode
+			  boo-mode
 			  cg-mode
 			  ;; nxhtml-mumamo-mode
 			  ))
@@ -352,7 +355,13 @@
     ;; helm
     ("\C-c\C-h\C-f" helm-for-files)
     ("\C-c\C-h\C-k" helm-bookmark-helper)
+    ("\C-c\C-h\C-d" helm-dash)
+
     ("\C-c\C-h\C-b" helm-buffers-list)
+    ("\C-x\C-b" helm-buffers-list)
+    ("\C-xb" helm-buffers-list)
+    ("\M-y" helm-show-kill-ring)
+
     ;;("\C-c\C-h\C-g" helm-ls-git) ;; TODO customize this so that it ignores .meta files
     ("\C-c\C-h\C-s" helm-swoop)
     ("\C-c\C-h\C-h" helm-mini)
@@ -361,7 +370,7 @@
     ("\C-c\C-h\C-y" helm-flycheck)
     ("\M-x" helm-M-x)
     ("\C-c\C-h\C-g" helm-do-grep)
-    ("\C-f9" helm-ls-git)
+    ([C-f9] helm-ls-git)
     ;; ("\C-xb" helm-buffers-list)
     ("\C-c\C-h\C-r" helm-regexp)
     ;; helm-help
@@ -419,7 +428,7 @@
 				      "~/Library/Logs/Unity/Player.log")))
     ;; unity/algoterranean interpreter
     ([C-f11] (lambda () (interactive) (watch-log-file unity-interpreter-log)))
-
+    
     ;; weblogger
     ([C-f12] htmlize-for-blog)
     ([f12] weblogger-start-entry)
@@ -453,8 +462,6 @@
 ;; set all global keybindings
 (mapcar (lambda (x) (global-set-key (car x) (car (cdr x))))
 	my-global-keybindings)
-
-
 
 
 
@@ -1163,3 +1170,5 @@ build it using mdtool."
 ;; mono stuff
 (setq auto-mode-alist (cons '("\.exe.config$" . nxml-mode) auto-mode-alist))
 (setq tags-file-name ".tags")
+
+;; (setq sql-sqlite-program "~/.sqlite3.exe")
