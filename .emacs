@@ -22,6 +22,8 @@
 ;; SETUP
 ;;======================
 
+(server-start)
+
 (add-to-list 'load-path "~/.emacs.d/")
 
 ;; support for home/work profiles that need to be kept separate for security reasons
@@ -55,6 +57,7 @@
 			  dired-details+
 			  display-theme
 			  edit-server
+			  exec-path-from-shell
 			  erc-terminal-notifier
 			  ercn
 			  flycheck
@@ -72,6 +75,12 @@
 			  helm-dictionary
 			  helm-themes
 			  helm-swoop
+			  helm-make
+			  helm-mode-manager
+			  helm-package
+			  helm-proc
+			  helm-projectile
+			  helm-projectile-all
 			  ;; helm-spaces ;; TODO make something similar for workgroups2
 			  hide-comnt ;; locks up emacs?
 			  htmlfontify
@@ -84,16 +93,21 @@
 			  ;; mark-multiple
 			  nav
 			  omnisharp
+			  org-magit
+			  org-screenshot
 			  pianobar
 			  powerline
-			  popwin
+			  ;; popwin
 			  python-mode
+			  projectile
 			  rainbow-mode
 			  scratch-persist
 			  slime
 			  ;; session
 			  server
+			  sqlite
 			  weblogger
+			  w3m
 			  workgroups2   ;; origional workgroups.el is buggy
 			  yasnippet))
 
@@ -118,6 +132,7 @@
 			  nav
 			  org
 			  powerline
+			  sqlite
 			  ;; popwin
 
 			  ;; session
@@ -129,6 +144,7 @@
 			  boo-mode
 			  cg-mode
 			  ;; nxhtml-mumamo-mode
+			  yasnippet
 			  ))
 
 (defvar my-theme-list-pos 0)
@@ -322,6 +338,10 @@
 (setq buffer-stack-untracked '("*Help*" "*Completions*" "*scratch*"
 			       "*Messages*" "*Backtrace*" "*Warnings*"))
 
+
+(setq helm-dash-common-docsets '("Mono" "Unity 3D"))
+(setq browse-url-browser-function 'w3m-browse-url)
+
 ;; (nav-disable-overeager-window-splitting) ;; nav
 
 
@@ -370,6 +390,8 @@
     ("\C-c\C-h\C-y" helm-flycheck)
     ("\M-x" helm-M-x)
     ("\C-c\C-h\C-g" helm-do-grep)
+    ("\C-c\C-h\C-u" helm-unity-execute)
+    ("\C-c\C-h\C-p" helm-projectile)
     ([C-f9] helm-ls-git)
     ;; ("\C-xb" helm-buffers-list)
     ("\C-c\C-h\C-r" helm-regexp)
@@ -394,8 +416,8 @@
     ;; native fullscreen for win32 and osx
     ([f7] toggle-full-screen-cross-platform)
     ;; grep
-    ([C-f10] search-proj-recursively)
-    ([f10] search-proj-directory)
+    ;; ([C-f10] search-proj-recursively)
+    ;; ([f10] search-proj-directory)
     ;; navigate to the matching paren/brace
     ("%" goto-match-paren)
     ;; join line shortcut
@@ -748,24 +770,18 @@ vi style of % jumping to matching brace."
 ;;======================
 ;; MODES
 ;;======================
+;; (exec-path-from-shell-copy-env "PYTHONPATH")
 
 ;; eshell
-(add-hook 'eshell-mode-hook
-	  '(lambda nil
-	     (eshell/export
-	      "DYLD_FALLBACK_LIBRARY_PATH=/Library/Frameworks/Mono.framework/Versions/Current/lib:$DYLD_FALLBACK_LIBRARY_PATH:/usr/lib")
-	     (setq eshell-path-env
-		   "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
+;; sync up various path and other env variables from the actual shell
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+(exec-path-from-shell-copy-env "DYLD_FALLBACK_LIBRARY_PATH")
+(exec-path-from-shell-copy-env "MANPATH")
+(exec-path-from-shell-copy-env "INFOPATH")
+(exec-path-from-shell-copy-env "MONO_FRAMEWORK_PATH")
+(exec-path-from-shell-copy-env "BOOC_EXEC")
 
-	     ;; (eshell/export "EPOCROOT=\\Paragon\\")
-	     ;; (let ((path))
-	     ;;   (setq path ".;c:/program files/microsoft visual studio/vb98/")
-	     ;;   (setq path (concat path ";d:/program files/microsoft visual studio/vc98/bin"))
-	     ;;   (setenv "PATH" path))
-	     ;; (local-set-key "\C-u" 'eshell-kill-input))
-	     ))
-
-;;(setq eshell-path-env "/sw/bin:/sw/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/opt/X11/bin:/usr/local/git/bin:/usr/local/MacGPG2/bin")
 
 ;; helm pcomplete mode
 ;; (add-hook 'eshell-mode-hook
@@ -1034,130 +1050,167 @@ vi style of % jumping to matching brace."
 ;; (load-file "~/.emacs.d/unity-csharp.el")
 
 ;; from https://github.com/cantsin/dotemacs/blob/master/setup-unity.el
-(defun unity-find-project-sln-from-dir (dir-path)
-  "Walks up the tree from DIR-PATH, trying to find an sln.
-If it finds one, returns it, else nil."
-  (if (and (file-exists-p dir-path) (not (string= dir-path "/")))
-      (let* (
-	     (dir-name (file-name-base (directory-file-name dir-path)))
-	     (sln-path (concat (file-name-as-directory dir-path)
-			       (concat dir-name ".sln"))))
-        (if (file-exists-p sln-path)
-            sln-path
-          (unity-find-project-sln-from-dir (expand-file-name (concat
-							      dir-path "/.."))) ;; keep going down stack
-          ))
-    nil))
+;; (defun unity-find-project-sln-from-dir (dir-path)
+;;   "Walks up the tree from DIR-PATH, trying to find an sln.
+;; If it finds one, returns it, else nil."
+;;   (if (and (file-exists-p dir-path) (not (string= dir-path "/")))
+;;       (let* (
+;; 	     (dir-name (file-name-base (directory-file-name dir-path)))
+;; 	     (sln-path (concat (file-name-as-directory dir-path)
+;; 			       (concat dir-name ".sln"))))
+;;         (if (file-exists-p sln-path)
+;;             sln-path
+;;           (unity-find-project-sln-from-dir (expand-file-name (concat
+;; 							      dir-path "/.."))) ;; keep going down stack
+;;           ))
+;;     nil))
 
-(defun unity-find-project-dir-from-file (project-file)
-  (file-name-directory (unity-find-project-sln-from-dir
-                        (file-name-directory buffer-file-name))))
+;; (defun unity-find-project-dir-from-file (project-file)
+;;   (file-name-directory (unity-find-project-sln-from-dir
+;;                         (file-name-directory buffer-file-name))))
 
-(defun buffer-has-unity-sln-parent ()
-  "Find the sln file that defines this project."
-  (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))
+;; (defun buffer-has-unity-sln-parent ()
+;;   "Find the sln file that defines this project."
+;;   (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))
 
-(defun restore-root-if-necessary (project-root err)
-  (let* (
-         (error-filename (flycheck-error-filename err))
-         (is-rooted (string-match (concat "^" project-root ".*")
-				  error-filename)))
-    (if (not is-rooted)
-        (flycheck-error-new
-         :filename (concat project-root error-filename)
-         :line (flycheck-error-line err)
-         :column (flycheck-error-column err)
-         :message (flycheck-error-message err)
-         :level (flycheck-error-level err))
-      err)))
+;; (defun restore-root-if-necessary (project-root err)
+;;   (let* (
+;;          (error-filename (flycheck-error-filename err))
+;;          (is-rooted (string-match (concat "^" project-root ".*")
+;; 				  error-filename)))
+;;     (if (not is-rooted)
+;;         (flycheck-error-new
+;;          :filename (concat project-root error-filename)
+;;          :line (flycheck-error-line err)
+;;          :column (flycheck-error-column err)
+;;          :message (flycheck-error-message err)
+;;          :level (flycheck-error-level err))
+;;       err)))
 
-(defun parse-patterns-and-restore-path (output checker _buffer)
-  "the file names listed in the error output from unity doesn't include
-the project root. flycheck can't find the files if it's not an absolute path."
-  (let* (
-         (trimmed-output
-          (mapconcat 'identity
-                     (-map
-                      (lambda (line) (substring line 0 (min (length
-							     line) 1000)))
-                      (split-string output "\n"))
-                     "\n"))
-         (raw-parse-results (flycheck-parse-with-patterns
-			     trimmed-output checker _buffer))
-         (project-root (unity-find-project-dir-from-file buffer-file-name)))
-    (-map
-     (lambda (err) (restore-root-if-necessary project-root err))
-     raw-parse-results)))
+;; (defun parse-patterns-and-restore-path (output checker _buffer)
+;;   "the file names listed in the error output from unity doesn't include
+;; the project root. flycheck can't find the files if it's not an absolute path."
+;;   (let* (
+;;          (trimmed-output
+;;           (mapconcat 'identity
+;;                      (-map
+;;                       (lambda (line) (substring line 0 (min (length
+;; 							     line) 1000)))
+;;                       (split-string output "\n"))
+;;                      "\n"))
+;;          (raw-parse-results (flycheck-parse-with-patterns
+;; 			     trimmed-output checker _buffer))
+;;          (project-root (unity-find-project-dir-from-file buffer-file-name)))
+;;     (-map
+;;      (lambda (err) (restore-root-if-necessary project-root err))
+;;      raw-parse-results)))
 
 
-(flycheck-define-checker unity-csharp-unity-flychecker
-  "given a c-sharp file, looks for the unity file and then tries to
-build it using mdtool."
-  :command ("/Applications/Unity/Unity.app/Contents/MacOS/Unity"
-	    "-batchmode"
-	    "-logFile"
-	    "-quit"
-	    "-projectPath"
-	    (eval (unity-find-project-dir-from-file
-		   (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))))
 
+
+;; (defun file-is-in-algoterranean
+;;   (file-name-directory buffer-file-name)))
+
+(flycheck-define-checker algo-project-flychecker
+  "something"
+  :command ("make" "-f" "~/Cloud/projects/algoterranean/src/Algoterranean/makefile" "FLYCHECK=yes")
   :error-patterns
-  ;; Assets/Plugins/LibNoise/Libnoise.cs(43,22): error CS1519: Unexpected symbol `public' in class, struct, or interface member declaration
   ((error line-start (file-name) "(" line "," column "): error "
 	  (message) line-end)
-   ;; Assets/Third Party/kolmich/KGFMapSystem/scripts/KGFMapSystem.cs(39,38): warning CS0618: `UnityEngine.GameObject.active' is obsolete: `GameObject.active is obsolete. Use GameObject.SetActive(),GameObject.activeSelf or GameObject.activeInHierarchy.'
-   (warning line-start (file-name) "(" line "," column "): warning "
-	    (message) line-end)
-   ;; Assets/Algoterranean/Managers/NetworkManager.boo(125,13): BCE0005: Unknown identifier: 'x'.
    (error line-start (file-name) "(" line "," column "): BCE"
 	  (message) line-end)
-   ;; Assets/Algoterranean/Misc/Interpreter/Interpreter.boo(56,9): BCW0003: WARNING: Unused local variable 'x'.
+   (warning line-start (file-name) "(" line "," column "): warning "
+	    (message) line-end)   
    (warning line-start (file-name) "(" line "," column "): BCW"
 	    (message) line-end))
-
-
-
-  ;; (warning line-start
-  ;;          (file-name (1+ (in ":" "/" alnum)) ".cs")
-  ;;          "(" line "," column ")"
-  ;;          ": warning "
-  ;;          (message (0+ any))
-  ;;          line-end))
   :modes (csharp-mode boo-mode)
-  :error-parser parse-patterns-and-restore-path
-  ;; checker only valid if we can find an sln
-  :predicate (lambda () (buffer-has-unity-sln-parent)))
+  ;; :predicate (lambda () (buffer-has-unity-sln-parent))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled)))
+(add-to-list 'flycheck-checkers 'algo-project-flychecker 'append)
+(setq flycheck-check-syntax-automatically '(save mode-enabled))
+(global-flycheck-mode)
 
 
-;; (flycheck-define-checker unity-csharp-mdtool-flychecker
-;;   "given a c-sharp file, looks for the unity file and then tries to
-;; build it using mdtool."
-;;   :command ("/Applications/Unity/MonoDevelop.app/Contents/Frameworks/Mono.framework/Commands/mono"
-;;    "/Applications/Unity/MonoDevelop.app/Contents/MacOS/lib/monodevelop/bin/mdtool.exe"
-;;    "-v"
-;;    ;; "C:/Program Files (x86)/Xamarin Studio/bin/mdtool.exe"
-;;             "build"
-;;             ;; (eval (forward-slashes-to-backslashes
-;;             ;;        (unity-find-project-sln-from-dir (file-name-directory buffer-file-name)))))
-;;    (eval (unity-find-project-sln-from-dir (file-name-directory buffer-file-name))))
-;;   :error-patterns
-;;   ((error   line-start
-;;             (file-name (1+ (in ":" "\\" alnum)) ".cs")
-;;             "(" line "," column ")"
-;;             " : error "
-;;             (message (0+ any))
-;;             line-end)
-;;    (warning line-start
-;;             (file-name (1+ (in ":" "\\" alnum)) ".cs")
-;;             "(" line "," column ")"
-;;             " : warning "
-;;             (message (0+ any))
-;;             line-end))
-;;   :modes csharp-mode
-;;   ;; checker only valid if we can find an sln
-;;   :predicate (lambda () (buffer-has-unity-sln-parent)))
-;;(add-to-list 'flycheck-checkers 'unity-csharp-mdtool-flychecker 'append)
-(add-to-list 'flycheck-checkers 'unity-csharp-unity-flychecker 'append)
+(defun helm-unity-action (candidate)
+  (let ((action (symbol-name candidate))
+	(unity-command (concat "/Applications/Unity/Unity.app/Contents/MacOS/Unity "
+			       "-batchmode " 
+			       "-logFile " 
+			       "-projectPath ~/Cloud/projects/algoterranean/unity/ "
+			       "-quit " 
+			       "-executeMethod Algoterranean.Networking.NetworkMenus.")))
+    (cond ((string= action "Flycheck") 
+	   (flycheck-buffer))
+	  ((string= action "Build Library") 
+	   (shell-command "make -f ~/Cloud/projects/algoterranean/src/Algoterranean/makefile&"))
+	  ((string= action "Build Standalone") 
+	   (shell-command (concat unity-command "BuildSinglePlayer&")))
+	  ((string= action "Build Server") 
+	   (shell-command (concat unity-command "BuildServer&")))
+	  ((string= action "Build Client") 
+	   (shell-command (concat unity-command "BuildClient&"))))))
+
+
+
+
+(defun helm-unity-execute ()
+  (interactive)
+  (helm :sources '(((name . "Commands")
+		   (candidates lambda nil
+			       '("Flycheck" "Build Library" "Build Standalone" "Build Client" "Build Server"))
+		   (match . helm-files-match-only-basename)
+		   (type . command)
+		   (adjust)
+		   (recenter)
+		   (action . (("Execute" . helm-unity-action)))
+		   ;; (default-action . (("Execute" . (lambda (candidate) (message candidate)))))
+		   ;; (persistent-action . (("Execute" . (lambda (candidate) (message candidate)))))
+		   )
+		   ((name . "Project Files")
+		    (candidates lambda nil 
+				(append (files-in-below-directory "/Users/p/Cloud/projects/algoterranean/src/Algoterranean/" "\\.boo$\\|\\.cs$")
+					(files-in-below-directory "/Users/p/Cloud/projects/algoterranean/unity/" "\\.boo$\\|\\.cs$")))
+		    (match . helm-files-match-only-basename)
+		    (type . file)
+		    (recenter)))
+	
+	:buffer "*helm-unity*"))
+
+
+(defun files-in-below-directory (directory fregexp)
+  "List the files in DIRECTORY and in its sub-directories that match the regexp FREGEXP"
+  (let (el-files-list
+	(current-directory-list
+	 (directory-files-and-attributes directory t)))
+    ;; while we are in the current directory
+    (while current-directory-list
+      (cond
+       ;; check to see whether filename matches the regexp
+       ;; and if so, append its name to a list.
+	 ((string-match fregexp (car (car current-directory-list)))
+	  ;; ((equal ".boo" (substring (car (car current-directory-list)) -4))
+	  (setq el-files-list
+		(cons (car (car current-directory-list)) el-files-list)))
+       ;; check whether filename is that of a directory
+	 ((eq t (car (cdr (car current-directory-list))))
+	;; decide whether to skip or recurse
+	(if
+	    (equal "."
+		   (substring (car (car current-directory-list)) -1))
+	    ;; then do nothing since filename is that of
+	    ;;   current directory or parent, "." or ".."
+	    ()
+	  ;; else descend into the directory and repeat the process
+	  (setq el-files-list
+		(append
+		 (files-in-below-directory
+		  (car (car current-directory-list)) fregexp)
+		 el-files-list)))))
+      ;; move to the next filename in the list; this also
+      ;; shortens the list so the while loop eventually comes to an end
+      (setq current-directory-list (cdr current-directory-list)))
+    ;; return the filenames
+    el-files-list))
 
 ;; (add-to-list 'auto-mode-alist '(".algo.boo$" . boo-mode))
 ;; (add-to-list 'auto-mode-alist '(".algo.py$" . python-mode))
@@ -1171,4 +1224,9 @@ build it using mdtool."
 (setq auto-mode-alist (cons '("\.exe.config$" . nxml-mode) auto-mode-alist))
 (setq tags-file-name ".tags")
 
-;; (setq sql-sqlite-program "~/.sqlite3.exe")
+;; projectile mode
+(projectile-global-mode)
+(setq projectile-enable-caching t)
+
+
+(auto-revert-mode t)
