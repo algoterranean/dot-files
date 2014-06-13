@@ -233,8 +233,9 @@
 
 (update-my-packages)
 
-;; require anything needed below
-(mapc 'require my-require-list)
+;; require anything needed below, ignoring any that don't exist
+(mapc (lambda (x) (require x nil t)) 
+      my-require-list)
 
 
 
@@ -1111,9 +1112,25 @@ vi style of % jumping to matching brace."
 ;; (defun file-is-in-algoterranean
 ;;   (file-name-directory buffer-file-name)))
 
+
+(defun algo-flycheck-find-makefile (dir-path)
+  """Follow the directory structure upwards until we find a makefile."""
+  (let ((potential-makefile (concat dir-path "makefile"))
+	(potential-makefile2 (concat dir-path "Makefile")))
+    (cond ((file-exists-p potential-makefile) potential-makefile)
+	  ((file-exists-p potential-makefile2) potential-makefile2)
+	  ((and (file-directory-p (expand-file-name (concat dir-path "/..")))
+		(not (string= (expand-file-name (concat dir-path "/..")) "/")))
+	   (algo-flycheck-find-makefile (expand-file-name (concat dir-path "/.."))))
+	  (t nil))))
+
+;;(algo-flycheck-find-makefile "~/Cloud/projects/algoterranean/src/Algoterranean/")
+
+
 (flycheck-define-checker algo-project-flychecker
   "something"
-  :command ("make" "-f" "~/Cloud/projects/algoterranean/src/Algoterranean/makefile" "FLYCHECK=yes")
+  :command ("make" "-f" (eval (algo-flycheck-find-makefile (file-name-directory buffer-file-name))) "FLYCHECK=yes")
+;;(eval (algo-flycheck-find-makefile (dir-path source))) ;;("make" "-f" "~/Cloud/projects/algoterranean/src/Algoterranean/makefile" "FLYCHECK=yes")
   :error-patterns
   ((error line-start (file-name) "(" line "," column "): error "
 	  (message) line-end)
@@ -1124,7 +1141,7 @@ vi style of % jumping to matching brace."
    (warning line-start (file-name) "(" line "," column "): BCW"
 	    (message) line-end))
   :modes (csharp-mode boo-mode)
-  ;; :predicate (lambda () (buffer-has-unity-sln-parent))
+  :predicate (lambda () (algo-flycheck-find-makefile (file-name-directory buffer-file-name)))
   (setq flycheck-check-syntax-automatically '(save mode-enabled)))
 (add-to-list 'flycheck-checkers 'algo-project-flychecker 'append)
 (setq flycheck-check-syntax-automatically '(save mode-enabled))
