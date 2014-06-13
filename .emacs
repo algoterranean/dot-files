@@ -1109,28 +1109,24 @@ vi style of % jumping to matching brace."
 
 
 
-;; (defun file-is-in-algoterranean
-;;   (file-name-directory buffer-file-name)))
-
 
 (defun algo-flycheck-find-makefile (dir-path)
-  """Follow the directory structure upwards until we find a makefile."""
+  "Follow the directory structure upwards until we find a makefile. If we do not, return nil."
   (let ((potential-makefile (concat dir-path "makefile"))
-	(potential-makefile2 (concat dir-path "Makefile")))
+	(potential-makefile2 (concat dir-path "Makefile"))
+	(parent-dir (expand-file-name (concat dir-path "/.."))))
+
     (cond ((file-exists-p potential-makefile) potential-makefile)
 	  ((file-exists-p potential-makefile2) potential-makefile2)
-	  ((and (file-directory-p (expand-file-name (concat dir-path "/..")))
-		(not (string= (expand-file-name (concat dir-path "/..")) "/")))
-	   (algo-flycheck-find-makefile (expand-file-name (concat dir-path "/.."))))
+	  ((and (file-directory-p parent-dir)
+		(not (string= parent-dir "/")))
+	   (algo-flycheck-find-makefile parent-dir))
 	  (t nil))))
-
-;;(algo-flycheck-find-makefile "~/Cloud/projects/algoterranean/src/Algoterranean/")
 
 
 (flycheck-define-checker algo-project-flychecker
-  "something"
+  "Flychecker setup for boo files that also have a makefile associated with them."
   :command ("make" "-f" (eval (algo-flycheck-find-makefile (file-name-directory buffer-file-name))) "FLYCHECK=yes")
-;;(eval (algo-flycheck-find-makefile (dir-path source))) ;;("make" "-f" "~/Cloud/projects/algoterranean/src/Algoterranean/makefile" "FLYCHECK=yes")
   :error-patterns
   ((error line-start (file-name) "(" line "," column "): error "
 	  (message) line-end)
